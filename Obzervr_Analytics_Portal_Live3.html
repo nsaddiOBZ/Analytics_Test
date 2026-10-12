@@ -688,7 +688,7 @@ document.getElementById('ask').addEventListener('keydown',function(e){if(e.key==
     </div>
     <div class="who" id="cWho"></div>
     <details id="cTokenBox">
-      <summary>Use an access token instead</summary>
+      <summary>Or connect with a Power BI access token</summary>
       <div class="drop" id="cDrop" tabindex="0" role="button" style="margin-top:10px"><b>Drop credentials.txt</b> here, or click to choose it. Reads <code>ACCESS_TOKEN=</code>, <code>WORKSPACE_ID=</code> and <code>DATASET_ID=</code>.</div>
       <input type="file" id="cFile" accept=".txt,.env,text/plain" hidden>
       <label for="cToken">Power BI access token</label>
@@ -1073,8 +1073,8 @@ function updateTitles(v) {
 function setMode() {
   var b = $('connBtn'), lab = $('connLabel');
   b.classList.toggle('live', Cube.live);
-  lab.textContent = Cube.live ? 'Live · ' + (Cube.group ? Cube.group + ' · ' + Cube.members.length + ' sites' : Cube.tenants.length === 1 ? Cube.tenants[0] : Cube.wsName.replace(/^\*\s*/, '') || 'Data Cube') : (msalReady() ? 'Sign in with Microsoft' : 'Connect to Data Cube');
-  $('demoBtn').textContent = msalReady() ? 'Sign in with Microsoft' : 'Connect';
+  lab.textContent = Cube.live ? 'Live · ' + (Cube.group ? Cube.group + ' · ' + Cube.members.length + ' sites' : Cube.tenants.length === 1 ? Cube.tenants[0] : Cube.wsName.replace(/^\*\s*/, '') || 'Data Cube') : 'Connect to Data Cube';
+  $('demoBtn').textContent = 'Connect';
   b.title = Cube.live ? 'Connected to ' + Cube.dsName + ' in ' + Cube.wsName + ' as ' + whoText(Cube.claims || {}) + '. ' + (Auth.account ? 'Signed in with Microsoft; the token renews on its own.' : 'Token expires ' + new Date(Cube.claims.exp * 1000).toLocaleTimeString() + '.') : (msalReady() ? 'Sign in with your Microsoft work account' : 'Connect with a Power BI access token');
   $('aiPill').textContent = Cube.live ? '✦ AI Portal · live' : '✦ AI Portal · concept';
   $('demoStrip').hidden = Cube.live;
@@ -1109,7 +1109,7 @@ function tokenProblem(msg) {
   $('connBtn').classList.add('warn');
   s.hidden = false; s.classList.add('err');
   $('demoText').textContent = msg;
-  $('demoBtn').textContent = Auth.account || msalReady() ? 'Sign in again' : 'Paste a new token';
+  $('demoBtn').textContent = Auth.account ? 'Sign in again' : 'Paste a new token';
 }
 
 /* ---------- Microsoft sign-in (MSAL, redirect flow) ---------- */
@@ -1254,7 +1254,7 @@ function openConn() {
   $('cDisc').textContent = Auth.account ? 'Sign out' : 'Disconnect';
   $('cTokenBox').hidden = !!Auth.account;
   $('cMsalTop').hidden = !!Auth.account;
-  $('cTokenBox').open = !Auth.account && (!msalReady() || !!$('cToken').value);
+  $('cTokenBox').open = !Auth.account;
   if (!Auth.account && !$('cToken').value) { $('cWho').textContent = ''; resetSel('cWs', 'Sign in first'); resetSel('cDs', '—'); }
   if (!$('cToken').value) $('cToken').value = Cube.token || saved.token || '';
   $('cRemember').checked = !!saved.remember;
@@ -1365,8 +1365,9 @@ async function onConnect() {
   } catch (e) { $('cErr').textContent = e.message; }
   finally { go.disabled = false; go.textContent = 'Connect'; }
 }
-$('connBtn').onclick = function () { (Cube.live || Auth.account || !msalReady()) ? openConn() : signIn(); };
-$('demoBtn').onclick = function () { (msalReady() && (!Auth.account || $('demoStrip').classList.contains('err'))) ? signIn() : openConn(); };
+// Both always open the dialog, which offers Microsoft sign-in and the Power BI token side by side
+$('connBtn').onclick = openConn;
+$('demoBtn').onclick = function () { (Auth.account && $('demoStrip').classList.contains('err')) ? signIn() : openConn(); };
 $('cMsalGo').onclick = signIn;
 $('cCancel').onclick = closeConn;
 $('cGo').onclick = onConnect;
@@ -2642,10 +2643,11 @@ renderViewsNav();
       var res = await app.handleRedirectPromise();
       Auth.account = (res && res.account) || app.getAllAccounts()[0] || null;
       if (Auth.account) { setMode(); await autoPick(); return; }
-    } catch (e) { tokenProblem('Microsoft sign-in didn\'t finish: ' + (e.errorMessage || e.message)); return; }
+    } catch (e) { tokenProblem('Microsoft sign-in didn\'t finish: ' + (e.errorMessage || e.message) + ' You can connect with a Power BI token meanwhile.'); return; }
     setMode();
-    return;
   }
+  // Not signed in with Microsoft: reconnect with a remembered Power BI token, if there is one
+
   var s; try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { }
   if (s && s.token && s.ws && s.ds && tokenState(s.token).ok) {
     connect({ token: s.token, ws: s.ws, ds: s.ds, wsName: s.wsName, dsName: s.dsName, members: s.members, group: s.group }).catch(function (e) { tokenProblem('Couldn\'t reconnect: ' + e.message); });

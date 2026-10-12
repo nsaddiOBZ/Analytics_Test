@@ -199,7 +199,7 @@
   .dlg .msbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid #8c8c8c;color:#5e5e5e;font:600 14px 'Segoe UI',system-ui,sans-serif;padding:10px 16px;border-radius:4px}
   .dlg .msbtn:hover{background:#f3f3f3}
   .dlg .mstop[hidden]{display:none}
-  .dlg #cTokenBox,.dlg #cMsalBox{border-top:1px dashed #d3dee5;padding-top:10px}
+  .dlg #cTokenBox{border-top:1px dashed #d3dee5;padding-top:10px}
   .understood{font-size:11.5px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;margin-bottom:12px;line-height:1.6}
   .understood b{color:var(--navy2)}
   .airow{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12.5px;color:rgba(255,255,255,.75);flex-wrap:wrap}
@@ -338,7 +338,7 @@
       <!-- ============ ASK ============ -->
       <section class="view show" id="view-ask">
         <div class="hero">
-          <h2 id="heroHi">Hi Nahir 👋 What do you want to know? <b>Just ask.</b></h2>
+          <h2 id="heroHi">Hi 👋 What do you want to know? <b>Just ask.</b></h2>
           <p>Type in plain language. The portal maps your question to a Data Cube measure, returns the number and shows <b>how it was calculated</b> — fully traceable.</p>
           <div class="askbar">
             <span class="spark">✦</span>
@@ -696,15 +696,6 @@ document.getElementById('ask').addEventListener('keydown',function(e){if(e.key==
       <div class="hint">Run <code>az account get-access-token --resource https://analysis.windows.net/powerbi/api --query accessToken -o tsv</code> and paste the result. Tokens last about an hour. In PowerShell: <code>Get-PowerBIAccessToken -AsString</code>.</div>
       <label class="chk"><input type="checkbox" id="cRemember"> Remember on this computer, token included</label>
     </details>
-    <details id="cMsalBox">
-      <summary>Set up Microsoft sign-in</summary>
-      <div class="hint">Needs an Entra app registration of type <b>Single-page application</b> with this page's address as redirect URI and the Power BI delegated permissions Dataset.Read.All and Workspace.Read.All. Saved on this computer once entered.</div>
-      <div class="row2">
-        <div><label for="cClient">Application (client) ID</label><input type="text" id="cClient" spellcheck="false" placeholder="00000000-0000-…"></div>
-        <div><label for="cAad">Directory (tenant) ID</label><input type="text" id="cAad" spellcheck="false" placeholder="organizations"></div>
-      </div>
-      <div class="actions" style="justify-content:flex-start;margin-top:10px"><button type="button" id="cMsal">Save and sign in</button></div>
-    </details>
     <div class="row2">
       <div><label for="cWs">Workspace</label><select id="cWs" disabled><option>Sign in first</option></select></div>
       <div><label for="cDs">Dataset</label><select id="cDs" disabled><option>—</option></select></div>
@@ -751,13 +742,14 @@ document.getElementById('ask').addEventListener('keydown',function(e){if(e.key==
    queried with DAX through the Power BI REST API (executeQueries).
    RLS is enforced by Power BI from the token's identity.
    ===================================================================== */
-/* ---------- Microsoft sign-in: fill these in once ----------
-   clientId: the Application (client) ID of the Entra app registration
-             (type "Single-page application", redirect URI = this page's URL).
-   tenant:   your Directory (tenant) ID, or 'organizations' to let any work
-             account sign in (the app registration must be multi-tenant then).
-   You can also pass them in the URL: ?client=<id>&tenant=<id>            */
-var AUTH_CONFIG = { clientId: '', tenant: 'organizations' };
+/* ---------- Microsoft sign-in ----------
+   Users never see or type these. The portal ships with Obzervr's own Entra
+   app registration (multi-tenant, type "Single-page application", redirect
+   URI = this page's URL, delegated Power BI permissions Dataset.Read.All and
+   Workspace.Read.All). tenant 'organizations' lets any work account sign in:
+   Entra works out the user's directory from the email they type.
+   Admins can override for testing in the URL: ?client=<id>&tenant=<id>   */
+var AUTH_CONFIG = { clientId: 'c5ae0e69-4e5f-4021-9837-d30ceca7e5db', tenant: 'organizations' };
 var PBI = 'https://api.powerbi.com/v1.0/myorg/';
 var STORE_KEY = 'obz-portal-cube';
 var SCOPES = ['https://analysis.windows.net/powerbi/api/Dataset.Read.All', 'https://analysis.windows.net/powerbi/api/Workspace.Read.All'];
@@ -1092,8 +1084,7 @@ function setMode() {
   $('footnote').innerHTML = Cube.live
     ? 'Live from Power BI · dataset "' + esc(Cube.dsName) + '" in workspace "' + esc(Cube.wsName) + '". Every number comes from a DAX query you can open under its card. Row-level security is applied by Power BI from your token.'
     : 'Shape-Up PROD-1882 · every number on this portal comes from your Data Cube through DAX. Connect to load it.';
-  var given = Cube.live && Cube.claims && (Cube.claims.given_name || (Cube.claims.name || '').split(' ')[0]);
-  $('heroHi').innerHTML = 'Hi ' + esc(given || 'Nahir') + ' 👋 What do you want to know? <b>Just ask.</b>';
+  $('heroHi').innerHTML = 'Hi' + (userFirstName() ? ' ' + esc(userFirstName()) : '') + ' 👋 What do you want to know? <b>Just ask.</b>';
   var as = $('askSite'); if (as) as.innerHTML = Cube.live && isGroup() ? '<label class="flab" style="color:#dbe6ec">Site <select class="fsel" data-f="site">' + Cube.members.map(function (m, i) { return opt(String(i), m.site, String(Cube.primary || 0)); }).join('') + '</select></label>' : '';
   if (Cube.live) {
     ['fbar-wo', 'fbar-pm', 'fbar-safety'].forEach(liveFbar); healthFbar();
@@ -1105,6 +1096,14 @@ function setMode() {
   updateTitles(CURRENT);
   renderViewsNav();
 }
+/* First name of whoever is signed in: the Microsoft account first, else the pasted token's claims */
+function userFirstName() {
+  var a = Auth.account, ic = (a && a.idTokenClaims) || {}, c = Cube.claims || {};
+  var n = ic.given_name || (a && a.name) || c.given_name || c.name || '';
+  if (!n && a && a.username) n = a.username.split('@')[0].split(/[._]/)[0];
+  n = String(n).trim().split(/\s+/)[0];
+  return n ? n.charAt(0).toUpperCase() + n.slice(1) : '';
+}
 function tokenProblem(msg) {
   var s = $('demoStrip');
   $('connBtn').classList.add('warn');
@@ -1115,16 +1114,16 @@ function tokenProblem(msg) {
 
 /* ---------- Microsoft sign-in (MSAL, redirect flow) ---------- */
 function authCfg() {
-  var p = new URLSearchParams(location.search), saved = {};
-  try { saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}') || {}; } catch (e) { }
-  return { clientId: p.get('client') || AUTH_CONFIG.clientId || saved.clientId || '', tenant: p.get('tenant') || (AUTH_CONFIG.clientId ? AUTH_CONFIG.tenant : '') || saved.aad || AUTH_CONFIG.tenant || 'organizations' };
+  var p = new URLSearchParams(location.search);
+  var id = /^[0-9a-f-]{36}$/i.test(AUTH_CONFIG.clientId) ? AUTH_CONFIG.clientId : '';
+  return { clientId: p.get('client') || id, tenant: p.get('tenant') || AUTH_CONFIG.tenant || 'organizations' };
 }
 function msalReady() { return !!(window.msal && authCfg().clientId && /^https?:$/.test(location.protocol)); }
 function msalApp() {
   if (Auth.app) return Auth.app;
   var c = authCfg();
   Auth.app = new msal.PublicClientApplication({
-    auth: { clientId: c.clientId, authority: 'https://login.microsoftonline.com/' + c.tenant, redirectUri: location.origin + location.pathname, navigateToLoginRequestUrl: true },
+    auth: { clientId: c.clientId, authority: 'https://login.microsoftonline.com/' + c.tenant, redirectUri: location.origin + location.pathname.replace(/index\.html$/, ''), navigateToLoginRequestUrl: true },
     cache: { cacheLocation: 'localStorage' }
   });
   return Auth.app;
@@ -1132,8 +1131,8 @@ function msalApp() {
 function signIn() {
   if (!window.msal) { openConn(); $('cErr').textContent = 'The Microsoft sign-in library didn\'t load (cdn.jsdelivr.net blocked?). Use a token instead.'; return; }
   if (!/^https?:$/.test(location.protocol)) { openConn(); $('cErr').textContent = 'Microsoft sign-in needs the page to be served from http(s), not opened as a file. Run "python -m http.server" in this folder and open http://localhost:8000/' + location.pathname.split('/').pop() + '.'; return; }
-  if (!authCfg().clientId) { openConn(); $('cMsalBox').open = true; $('cErr').textContent = 'Microsoft sign-in isn\'t set up yet: enter the application (client) ID of the Entra app registration.'; return; }
-  msalApp().loginRedirect({ scopes: SCOPES, prompt: 'select_account' }).catch(function (e) { openConn(); $('cErr').textContent = 'Couldn\'t start Microsoft sign-in: ' + (e.errorMessage || e.message) + ' Check the client and tenant IDs.'; });
+  if (!authCfg().clientId) { openConn(); $('cErr').textContent = 'Microsoft sign-in isn\'t available on this copy of the portal yet. Contact the Obzervr Analytics team, or use an access token below.'; return; }
+  msalApp().loginRedirect({ scopes: SCOPES, prompt: 'select_account' }).catch(function (e) { openConn(); $('cErr').textContent = 'Couldn\'t start Microsoft sign-in: ' + (e.errorMessage || e.message); });
 }
 async function getToken() {
   if (!Auth.account) return Cube.token;
@@ -1254,13 +1253,10 @@ function openConn() {
   $('cDisc').hidden = !Cube.live && !Auth.account;
   $('cDisc').textContent = Auth.account ? 'Sign out' : 'Disconnect';
   $('cTokenBox').hidden = !!Auth.account;
-  $('cMsalBox').hidden = !!Auth.account;
   $('cMsalTop').hidden = !!Auth.account;
   $('cTokenBox').open = !Auth.account && (!msalReady() || !!$('cToken').value);
   if (!Auth.account && !$('cToken').value) { $('cWho').textContent = ''; resetSel('cWs', 'Sign in first'); resetSel('cDs', '—'); }
   if (!$('cToken').value) $('cToken').value = Cube.token || saved.token || '';
-  $('cClient').value = $('cClient').value || saved.clientId || '';
-  $('cAad').value = $('cAad').value || saved.aad || '';
   $('cRemember').checked = !!saved.remember;
   dlg.pending = { ws: Cube.ws || saved.ws || '', ds: Cube.ds || saved.ds || '', group: Cube.group || saved.group || '' };
   $('conn').hidden = false;
@@ -1327,30 +1323,20 @@ function parseCreds(text) {
   text.split(/\r?\n/).forEach(function (l) { var m = l.match(/^\s*(?:export\s+)?([A-Za-z_]+)\s*[=:]\s*(.+?)\s*$/); if (m) raw[m[1].toUpperCase()] = m[2].replace(/^["']|["']$/g, ''); });
   var tok = raw.ACCESS_TOKEN || raw.PBI_TOKEN || raw.POWERBI_TOKEN || raw.POWER_BI_TOKEN || raw.BEARER || raw.TOKEN || '';
   if (!tok) { var j = text.match(/eyJ[\w-]+\.[\w-]+\.[\w-]+/); if (j) tok = j[0]; }
-  return { token: cleanToken(tok), ws: raw.WORKSPACE_ID || raw.GROUP_ID || raw.PBI_WORKSPACE_ID || '', ds: raw.DATASET_ID || raw.PBI_DATASET_ID || '', clientId: raw.CLIENT_ID || '', aad: raw.AAD_TENANT_ID || raw.AZURE_TENANT_ID || raw.TENANT_ID || '' };
+  return { token: cleanToken(tok), ws: raw.WORKSPACE_ID || raw.GROUP_ID || raw.PBI_WORKSPACE_ID || '', ds: raw.DATASET_ID || raw.PBI_DATASET_ID || '' };
 }
 function readCredsFile(file) {
   if (!file) return;
   var r = new FileReader();
   r.onload = function () {
     var c = parseCreds(String(r.result || ''));
-    if (!c.token && !c.ws && !c.clientId) { $('cErr').textContent = file.name + ' has no ACCESS_TOKEN, WORKSPACE_ID or CLIENT_ID lines.'; return; }
+    if (!c.token && !c.ws) { $('cErr').textContent = file.name + ' has no ACCESS_TOKEN or WORKSPACE_ID lines.'; return; }
     if (c.token) $('cToken').value = c.token;
-    if (c.clientId) $('cClient').value = c.clientId;
-    if (c.aad) $('cAad').value = c.aad;
     dlg.pending = { ws: c.ws || dlg.pending.ws, ds: c.ds || dlg.pending.ds };
     if (c.ws) $('cWsId').value = c.ws; if (c.ds) $('cDsId').value = c.ds;
     onToken();
   };
   r.readAsText(file);
-}
-function msalSignIn() {
-  var client = $('cClient').value.trim(), aad = $('cAad').value.trim();
-  if (!client && authCfg().clientId) { signIn(); return; }
-  if (!client) { $('cMsalBox').open = true; $('cErr').textContent = 'Enter the application (client) ID of your Entra app registration.'; $('cClient').focus(); return; }
-  saveConn(Cube.ws || '', Cube.ds || '', { clientId: client, aad: aad });
-  Auth.app = null;
-  signIn();
 }
 async function onConnect() {
   var token = cleanToken($('cToken').value);
@@ -1381,11 +1367,10 @@ async function onConnect() {
 }
 $('connBtn').onclick = function () { (Cube.live || Auth.account || !msalReady()) ? openConn() : signIn(); };
 $('demoBtn').onclick = function () { (msalReady() && (!Auth.account || $('demoStrip').classList.contains('err'))) ? signIn() : openConn(); };
-$('cMsalGo').onclick = function () { msalReady() ? signIn() : msalSignIn(); };
+$('cMsalGo').onclick = signIn;
 $('cCancel').onclick = closeConn;
 $('cGo').onclick = onConnect;
 $('cDisc').onclick = function () { disconnect(); closeConn(); };
-$('cMsal').onclick = msalSignIn;
 $('cToken').addEventListener('input', onToken);
 $('cWs').addEventListener('change', function () { dlg.pending.ds = ''; loadDatasets(); });
 $('conn').addEventListener('click', function (e) { if (e.target === $('conn')) closeConn(); });

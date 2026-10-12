@@ -1,0 +1,92 @@
+# Reusable workflow: GitHub Actions equivalent of
+# obzervr.core/.azuredevops/pipelines/templates/deploy-cloudflare-pages-artifact.yml
+#
+# Expects an artifact named "<application-name lowercased>-pages" with this layout:
+#   site/                         -> deployed to Cloudflare Pages
+#   configuration/<env>.json      -> (optional) copied to site/runtime-config.json
+
+name: Deploy Cloudflare Pages artifact
+
+on:
+  workflow_call:
+    inputs:
+      application-name:
+        type: string
+        required: true
+      environment:
+        type: string
+        required: true
+      cloudflare-project-name:
+        type: string
+        required: true
+      require-runtime-configuration:
+        description: Fail if configuration/<environment>.json is missing from the artifact.
+        type: boolean
+        default: false
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.application-name }} to Cloudflare Pages - ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.application-name }}-${{ inputs.environment }}
+      url: ${{ steps.deploy.outputs.deployment-url }}
+    steps:
+      - name: Resolve artifact name
+        id: names
+        run: echo "artifact=$(echo '${{ inputs.application-name }}' | tr '[:upper:]' '[:lower:]')-pages" >> "$GITHUB_OUTPUT"
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.artifact }}
+          path: ${{ runner.temp }}/${{ steps.names.outputs.artifact }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Stage ${{ inputs.application-name }} runtime configuration
+        env:
+          ARTIFACT_PATH: ${{ runner.temp }}/${{ steps.names.outputs.artifact }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          REQUIRE_CONFIG: ${{ inputs.require-runtime-configuration }}
+        run: |
+          set -euo pipefail
+
+          configuration_path="$ARTIFACT_PATH/configuration/$ENVIRONMENT.json"
+          runtime_configuration_path="$ARTIFACT_PATH/site/runtime-config.json"
+          if [ ! -f "$configuration_path" ]; then
+            if [ "$REQUIRE_CONFIG" = "true" ]; then
+              echo "Deployment configuration file was not found: $configuration_path" >&2
+              exit 1
+            fi
+            echo "No runtime configuration for '$ENVIRONMENT'; skipping."
+            exit 0
+          fi
+
+          cp "$configuration_path" "$runtime_configuration_path"
+
+      - name: Deploy ${{ inputs.application-name }} to Cloudflare Pages
+        id: deploy
+        working-directory: ${{ runner.temp }}/${{ steps.names.outputs.artifact }}/site
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT_NAME: ${{ inputs.cloudflare-project-name }}
+          # Non-production environments deploy as a preview branch of the same project.
+          BRANCH: ${{ inputs.environment == 'production' && 'main' || inputs.environment }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.120.1 pages deploy . \
+            --project-name "$PROJECT_NAME" \
+            --branch "$BRANCH" | tee deploy.log
+          url=$(grep -oE 'https://[^ ]+\.pages\.dev' deploy.log | tail -n1 || true)
+          echo "deployment-url=$url" >> "$GITHUB_OUTPUT"
+          rm -f deploy.log

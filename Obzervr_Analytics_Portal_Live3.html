@@ -4,189 +4,226 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obzervr Analytics Portal — Live Data Cube (Shape-Up PROD-1882)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>function obzInk(c){return String(c).toLowerCase()==='#fca60e'?'#8b5b08':c;}</script>
 <style>
+  /* ===== Obzervr design tokens (verbatim from obzervr.core develop:
+     Obzervr.Web.Components/theme/obzervr-design-tokens.scss) ===== */
   :root{
-    --bg:#f0f2f5; --navy:#012435; --navy2:#013d5a;
-    --gold:#FFD073; --gold-d:#e6b800; --gold-t:#fff8e6;
-    --card:#fff; --card2:#f8fafc; --border:#ccd8e0;
-    --text:#012435; --muted:#4a6070; --muted2:#6e8090;
-    --green:#1a7a3c; --green-t:#e6f4ed; --amber:#c9860a; --amber-t:#fff3d6;
-    --red:#b3261e; --red-t:#fbe9e8; --blue:#128295;
-    --planned:#128295; --unplanned:#c9860a; --breakdown:#b3261e;
-    --shadow:0 1px 3px rgba(1,36,53,.08),0 8px 26px rgba(1,36,53,.07);
-    --sans:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
-    --mono:'Cascadia Code','Fira Code',ui-monospace,Consolas,monospace;
+    --obz-brand-primary:#012435; --obz-brand-secondary:#ffd073;
+    --theme-primary-color:var(--obz-brand-primary); --theme-secondary-color:var(--obz-brand-secondary);
+    --obz-surface-1:#ffffff; --obz-surface-2:#f4f4f4; --obz-surface-3:#e2e2e2; --obz-surface-4:#bbbbbb; --obz-surface-5:#000000;
+    --obz-text-high-emphasis:rgba(0,0,0,.87); --obz-text-medium-emphasis:rgba(0,0,0,.6); --obz-text-disabled:rgba(0,0,0,.38); --obz-text-icon:rgba(0,0,0,.6);
+    --obz-text-on-dark-high:#fff; --obz-text-on-dark-medium:rgba(255,255,255,.82); --obz-text-on-dark-low:rgba(255,255,255,.7); --obz-text-on-dark-disabled:rgba(255,255,255,.38);
+    --obz-overlay-on-dark-hover:rgba(255,255,255,.06); --obz-overlay-on-dark-active:rgba(255,255,255,.08);
+    --obz-border-on-dark:rgba(255,255,255,.12); --obz-border-on-dark-strong:rgba(255,255,255,.2);
+    --obz-accent-red:#c41b23; --obz-accent-purple:#7a0099; --obz-accent-blue:#0d6cb3; --obz-accent-teal:#139db0;
+    --obz-accent-teal-dark:#17796b; --obz-accent-green:#2e7d32; --obz-accent-lime:#6ba734; --obz-accent-orange:#fca60e;
+    --obz-font-family:Roboto,"Helvetica Neue",sans-serif; --obz-font-mono:"JetBrains Mono",Menlo,Consolas,monospace;
+    --obz-radius-sharp:0; --obz-radius-sm:4px; --obz-radius-md:8px; --obz-radius-lg:16px; --obz-radius-full:9999px;
+    --obz-border-width-default:1px; --obz-border-width-emphasis:2px; --obz-border-color-default:var(--obz-surface-3);
+    --obz-elevation-flat:none;
+    --obz-elevation-resting:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
+    --obz-elevation-raised:0 4px 8px rgba(0,0,0,.14),0 2px 4px rgba(0,0,0,.18);
+    --obz-elevation-overlay:0 6px 10px rgba(0,0,0,.16);
+    --obz-motion-fast:120ms; --obz-motion-moderate:240ms; --obz-motion-slow:400ms;
+    --obz-ease-standard:cubic-bezier(.4,0,.2,1); --obz-ease-decelerate:cubic-bezier(.25,.8,.25,1);
+
+    /* Data-viz roles: NOT in the design system yet. Built only from DS accents,
+       proposed for Foundations / Data visualisation. */
+    --dv-series-1:var(--obz-accent-blue); --dv-series-2:var(--obz-brand-primary); --dv-series-3:var(--obz-accent-teal);
+    --dv-good:var(--obz-accent-green); --dv-warn:var(--obz-accent-orange); --dv-bad:var(--obz-accent-red);
+    --dv-neutral:var(--obz-surface-4); --dv-track:var(--obz-surface-2); --dv-grid:var(--obz-surface-3);
+    --dv-mark-radius:var(--obz-radius-sm);
+    /* Warning as TEXT: accent-orange fails 4.5:1, so ink is darkened via color-mix,
+       the same technique obz-label uses for its success ink. */
+    --obz-warning-ink:color-mix(in srgb,var(--obz-accent-orange) 55%,black);
+
+    /* Legacy names the page already uses, re-pointed at tokens */
+    --bg:var(--obz-surface-2); --navy:var(--obz-brand-primary); --navy2:var(--obz-brand-primary);
+    --gold:var(--obz-brand-secondary); --gold-d:color-mix(in srgb,var(--obz-brand-secondary) 85%,black);
+    --gold-t:color-mix(in srgb,var(--obz-brand-secondary) 24%,white);
+    --card:var(--obz-surface-1); --card2:var(--obz-surface-2); --border:var(--obz-border-color-default);
+    --text:var(--obz-text-high-emphasis); --muted:var(--obz-text-medium-emphasis); --muted2:var(--obz-text-medium-emphasis);
+    --green:var(--obz-accent-green); --green-t:color-mix(in srgb,var(--obz-accent-green) 14%,white);
+    --amber:var(--obz-warning-ink); --amber-t:color-mix(in srgb,var(--obz-accent-orange) 18%,white);
+    --red:var(--obz-accent-red); --red-t:color-mix(in srgb,var(--obz-accent-red) 10%,white);
+    --blue:var(--obz-accent-blue);
+    --planned:var(--obz-accent-blue); --unplanned:var(--obz-accent-orange); --breakdown:var(--obz-accent-red);
+    --shadow:var(--obz-elevation-resting);
+    --sans:var(--obz-font-family); --mono:var(--obz-font-mono);
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:var(--obz-body-1-font-size,14px);line-height:20px}
   .app{display:flex;min-height:100vh}
   /* sidebar */
-  .side{width:246px;background:var(--navy);color:#9fb3c0;flex-shrink:0;display:flex;flex-direction:column}
-  .brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
-  .brandlogo{height:30px;width:auto;display:block;margin-bottom:6px}
-  .brand .bs{display:block;color:#5f7686;font-size:9.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;padding-left:2px}
-  .nav{padding:12px 10px;display:flex;flex-direction:column;gap:2px;flex:1;overflow:auto}
-  .nav .lbl{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:#56697a;padding:14px 12px 6px;font-weight:800}
-  .nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;color:#aebecb;text-decoration:none;font-size:13.5px;cursor:pointer;font-weight:500}
+  .side{width:246px;background:var(--navy);color:var(--obz-text-on-dark-low);flex-shrink:0;display:flex;flex-direction:column}
+  .brand{padding:20px 20px 16px;border-bottom:1px solid var(--obz-border-on-dark)}
+  .brandlogo{height:30px;width:auto;display:block;margin-bottom:8px}
+  .brand .bs{display:block;color:var(--obz-text-on-dark-low);font-size:10px;font-weight:500;letter-spacing:.7px;text-transform:uppercase;padding-left:2px}
+  .nav{padding:12px 12px;display:flex;flex-direction:column;gap:2px;flex:1;overflow:auto}
+  .nav .lbl{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--obz-text-on-dark-low);padding:16px 12px 8px;font-weight:500}
+  .nav a{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--obz-radius-md);color:var(--obz-text-on-dark-medium);text-decoration:none;font-size:14px;cursor:pointer;font-weight:500}
   .nav a .ic{width:17px;text-align:center;opacity:.9;font-size:14px}
-  .nav a:hover{background:rgba(255,255,255,.06);color:#fff}
-  .nav a.active{background:var(--gold);color:var(--navy);font-weight:700}
-  .side .foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:10.5px;color:#56697a;line-height:1.55}
+  .nav a:hover{background:var(--obz-overlay-on-dark-hover);color:var(--obz-text-on-dark-high)}
+  .nav a.active{background:var(--gold);color:var(--navy);font-weight:500}
+  .side .foot{padding:12px 16px;border-top:1px solid var(--obz-border-on-dark);font-size:10px;color:var(--obz-text-on-dark-low);line-height:1.55}
   /* main */
   .main{flex:1;display:flex;flex-direction:column;min-width:0}
-  .top{background:var(--navy);padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
-  .top h1{font-size:17px;margin:0;font-weight:700;color:#fff}
-  .top .ctx{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:2px}
-  .tenant{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;color:#dce6ec}
-  .tenant .dot{width:8px;height:8px;border-radius:50%;background:#3ddc84}
-  .pill{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--gold);color:var(--gold);padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:700;margin-left:10px}
-  .content{padding:22px 28px 64px;max-width:1160px;width:100%;margin:0 auto}
+  .top{background:var(--navy);padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+  .top h1{font-size:16px;margin:0;font-weight:500;color:#fff}
+  .top .ctx{font-size:13px;color:rgba(255,255,255,.6);margin-top:2px}
+  .tenant{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:4px 12px;border-radius:var(--obz-radius-md);font-size:12px;font-weight:500;color:var(--obz-text-on-dark-medium)}
+  .tenant .dot{width:8px;height:8px;border-radius:50%;background:var(--obz-accent-lime)}
+  .pill{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--gold);color:var(--gold);padding:4px 12px;border-radius:var(--obz-radius-lg);font-size:12px;font-weight:500;margin-left:12px}
+  .content{padding:24px 28px 64px;max-width:1160px;width:100%;margin:0 auto}
   .view{display:none}
-  .view.show{display:block;animation:fade .25s ease}
+  .view.show{display:block;animation:fade var(--obz-motion-moderate) var(--obz-ease-decelerate)}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .phead{margin:0 0 14px}
-  .phead h2{font-size:18px;margin:0 0 3px}
-  .phead .role{font-size:12.5px;color:var(--muted)}
+  .phead{margin:0 0 16px}
+  .phead h2{font-size:20px;margin:0 0 4px}
+  .phead .role{font-size:13px;color:var(--muted)}
   .phead .role b{color:var(--navy2)}
   /* filter bar */
-  .fbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:16px;flex-wrap:wrap;box-shadow:var(--shadow)}
-  .fbar .fl-left{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-  .fbar .ftitle{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted2);margin-right:3px}
-  .fltr{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:11.5px;cursor:pointer}
+  .fbar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:8px 12px;margin-bottom:16px;flex-wrap:wrap;box-shadow:var(--shadow)}
+  .fbar .fl-left{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .fbar .ftitle{font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:var(--muted2);margin-right:4px}
+  .fltr{display:inline-flex;align-items:center;gap:8px;background:var(--card2);border:1px solid var(--border);border-radius:var(--obz-radius-sm);padding:4px 8px;font-size:12px;cursor:pointer}
   .fltr:hover{border-color:var(--navy2)}
   .fltr .fl{color:var(--muted)}
-  .fltr .fv{color:var(--navy);font-weight:700}
-  .fltr .fc{color:var(--muted2);font-size:9px}
-  .refresh{font-size:11.5px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px}
-  .refresh b{color:var(--navy2);font-weight:700}
+  .fltr .fv{color:var(--navy);font-weight:500}
+  .fltr .fc{color:var(--muted2);font-size:10px}
+  .refresh{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:8px}
+  .refresh b{color:var(--navy2);font-weight:500}
   .refresh .rdot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(26,122,60,.15)}
   /* grid / cards */
   .grid{display:grid;gap:16px;margin-top:4px}
   .g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g6{grid-template-columns:repeat(6,1fr)}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:15px 17px;box-shadow:var(--shadow)}
-  .card h3{margin:0 0 2px;font-size:13.5px}
-  .card .sub{font-size:11.5px;color:var(--muted);margin-bottom:12px}
-  .kpi .v{font-size:25px;font-weight:800;line-height:1}
-  .kpi .k{font-size:11.5px;color:var(--muted);margin-bottom:7px;font-weight:600}
-  .kpi .foot{font-size:11px;margin-top:7px;font-weight:700}
-  .kpi.sm .v{font-size:21px}
-  .bars{display:flex;flex-direction:column;gap:9px}
-  .bar{display:grid;grid-template-columns:168px 1fr 52px;align-items:center;gap:10px;font-size:12.5px}
-  .bar .nm{color:#2c4350;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .bar .track{background:#e7edf1;border-radius:6px;height:16px;overflow:hidden}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:16px 16px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 2px;font-size:14px}
+  .card .sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .kpi .v{font-size:24px;font-weight:500;line-height:1}
+  .kpi .k{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500}
+  .kpi .foot{font-size:12px;margin-top:8px;font-weight:500}
+  .kpi.sm .v{font-size:20px}
+  .bars{display:flex;flex-direction:column;gap:8px}
+  .bar{display:grid;grid-template-columns:168px 1fr 52px;align-items:center;gap:12px;font-size:13px}
+  .bar .nm{color:var(--obz-text-high-emphasis);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .track{background:var(--dv-track);border-radius:var(--obz-radius-sm);height:16px;overflow:hidden}
   .bar .fill{height:100%}
-  .bar .val{text-align:right;font-weight:700;color:#2c4350}
-  .donutwrap{display:flex;align-items:center;gap:22px}
+  .bar .val{text-align:right;font-weight:500;color:var(--obz-text-high-emphasis)}
+  .donutwrap{display:flex;align-items:center;gap:24px}
   table.dt{width:100%;border-collapse:collapse;font-size:12px}
-  table.dt th{text-align:left;color:var(--muted);font-weight:700;padding:7px 8px;border-bottom:2px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
-  table.dt td{padding:7px 8px;border-bottom:1px solid #eef2f5;color:#283e4a}
+  table.dt th{text-align:left;color:var(--muted);font-weight:500;padding:8px 8px;border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+  table.dt td{padding:8px 8px;border-bottom:1px solid var(--obz-surface-2);color:var(--obz-text-high-emphasis)}
   table.dt tr:hover td{background:var(--card2)}
-  .badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block}
-  .b-planned{background:#e2f1f4;color:#0c6577}.b-unplanned{background:var(--amber-t);color:#9a6500}.b-breakdown{background:var(--red-t);color:var(--red)}
-  .b-ok{background:var(--green-t);color:var(--green)}.b-warn{background:var(--amber-t);color:#9a6500}.b-crit{background:var(--red-t);color:var(--red)}
-  .gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  .gz{text-align:center}.gz .lab{font-size:12px;font-weight:700;color:#2c4350;margin-bottom:4px}.gz .gv{font-size:19px;font-weight:800;margin-top:-4px}.gz .tg{font-size:10.5px;color:var(--muted)}
-  .pvb{display:flex;flex-direction:column;gap:11px}
-  .pvb .lbl2{display:flex;justify-content:space-between;margin-bottom:3px;color:#2c4350;font-weight:600;font-size:12px}
-  .pvb .dual{display:flex;height:13px;border-radius:5px;overflow:hidden;background:#e7edf1}
-  .mrc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .mrc .it{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 11px}
-  .mrc .it .l{font-size:11px;color:var(--muted);font-weight:600}
-  .mrc .it .vv{font-size:17px;font-weight:800;margin-top:2px}
-  .mrc .it .d{font-size:10.5px;font-weight:700}
-  .hm{display:grid;gap:4px;font-size:11px}
+  .badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:var(--obz-radius-md);font-size:12px;font-weight:400;line-height:20px;white-space:nowrap}
+  .b-planned{background:color-mix(in srgb,var(--obz-accent-blue) 12%,white);color:var(--obz-accent-blue)}.b-unplanned{background:color-mix(in srgb,var(--obz-accent-orange) 18%,white);color:var(--obz-text-high-emphasis)}.b-breakdown{background:color-mix(in srgb,var(--obz-accent-red) 10%,white);color:var(--obz-accent-red)}
+  .b-ok{background:color-mix(in srgb,var(--obz-accent-green) 14%,white);color:color-mix(in srgb,var(--obz-accent-green) 80%,black)}.b-warn{background:color-mix(in srgb,var(--obz-accent-orange) 18%,white);color:var(--obz-text-high-emphasis)}.b-crit{background:color-mix(in srgb,var(--obz-accent-red) 10%,white);color:var(--obz-accent-red)}
+  .gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .gz{text-align:center}.gz .lab{font-size:12px;font-weight:500;color:var(--obz-text-high-emphasis);margin-bottom:4px}.gz .gv{font-size:20px;font-weight:500;margin-top:-4px}.gz .tg{font-size:10px;color:var(--muted)}
+  .pvb{display:flex;flex-direction:column;gap:12px}
+  .pvb .lbl2{display:flex;justify-content:space-between;margin-bottom:4px;color:var(--obz-text-high-emphasis);font-weight:500;font-size:12px}
+  .pvb .dual{display:flex;height:13px;border-radius:var(--obz-radius-sm);overflow:hidden;background:var(--dv-track)}
+  .mrc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mrc .it{background:var(--card2);border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:8px 12px}
+  .mrc .it .l{font-size:12px;color:var(--muted);font-weight:500}
+  .mrc .it .vv{font-size:16px;font-weight:500;margin-top:2px}
+  .mrc .it .d{font-size:10px;font-weight:500}
+  .hm{display:grid;gap:4px;font-size:12px}
   .hm .hrow{display:grid;grid-template-columns:84px repeat(7,1fr);gap:4px;align-items:center}
-  .hm .hc{height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
-  .hm .lab{color:#2c4350;font-weight:600}
-  .hm .hh{color:var(--muted);font-weight:700;text-align:center;font-size:10px}
-  .legend{display:flex;gap:15px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:13px}
-  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
-  .callout{border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.5;margin-top:14px}
-  .callout.warn{background:var(--amber-t);border:1px solid #f0d79a;color:#7a4e00}
+  .hm .hc{height:22px;border-radius:var(--obz-radius-sm);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff}
+  .hm .lab{color:var(--obz-text-high-emphasis);font-weight:500}
+  .hm .hh{color:var(--muted);font-weight:500;text-align:center;font-size:10px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
+  .legend i{width:11px;height:11px;border-radius:var(--obz-radius-sm);display:inline-block;margin-right:4px;vertical-align:middle}
+  .callout{border-radius:var(--obz-radius-md);padding:12px 16px;font-size:13px;line-height:1.5;margin-top:16px}
+  .callout.warn{background:var(--amber-t);border:1px solid color-mix(in srgb,var(--obz-accent-orange) 40%,white);color:var(--obz-text-high-emphasis)}
   /* hero / ask */
-  .hero{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:16px;padding:26px 26px 24px;color:#fff;box-shadow:var(--shadow)}
-  .hero h2{margin:0 0 4px;font-size:21px}
+  .hero{background:var(--obz-brand-primary);border-radius:var(--obz-radius-lg);padding:28px 28px 24px;color:#fff;box-shadow:var(--shadow)}
+  .hero h2{margin:0 0 4px;font-size:20px}
   .hero h2 b{color:var(--gold)}
-  .hero p{margin:0 0 18px;color:rgba(255,255,255,.72);font-size:13.5px}
-  .askbar{display:flex;gap:10px;background:#fff;border-radius:12px;padding:8px 8px 8px 16px;align-items:center}
-  .askbar .spark{color:var(--gold-d);font-size:18px}
-  .askbar input{flex:1;border:none;outline:none;font-size:15px;color:var(--text);background:transparent;padding:9px 4px}
-  .askbar button{background:var(--gold);color:var(--navy);border:none;border-radius:9px;padding:11px 19px;font-weight:800;font-size:13.5px;cursor:pointer}
+  .hero p{margin:0 0 20px;color:rgba(255,255,255,.72);font-size:14px}
+  .askbar{display:flex;gap:12px;background:#fff;border-radius:var(--obz-radius-md);padding:8px 8px 8px 16px;align-items:center}
+  .askbar .spark{color:var(--gold-d);font-size:20px}
+  .askbar input{flex:1;border:none;outline:none;font-size:15px;color:var(--text);background:transparent;padding:8px 4px}
+  .askbar button{background:var(--gold);color:var(--navy);border:none;border-radius:var(--obz-radius-md);padding:12px 20px;font-weight:500;font-size:14px;cursor:pointer}
   .askbar button:hover{background:var(--gold-d)}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-  .chip{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:#dbe6ec;border-radius:20px;padding:7px 13px;font-size:12.5px;cursor:pointer;transition:.15s}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .chip{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);color:var(--obz-text-on-dark-medium);border-radius:var(--obz-radius-lg);padding:8px 12px;font-size:13px;cursor:pointer;transition:all var(--obz-motion-fast) var(--obz-ease-standard)}
   .chip:hover{background:var(--gold);border-color:var(--gold);color:var(--navy)}
-  #answer{margin-top:22px}
-  .ans{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
-  .ans .q{padding:13px 18px;background:var(--card2);border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);display:flex;gap:8px}
+  #answer{margin-top:24px}
+  .ans{background:#fff;border:1px solid var(--border);border-radius:var(--obz-radius-md);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+  .ans .q{padding:12px 20px;background:var(--card2);border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);display:flex;gap:8px}
   .ans .q b{color:var(--text)}
-  .ans .body{padding:18px 20px}
-  .ans .txt{font-size:15px;line-height:1.55;margin:0 0 14px}
+  .ans .body{padding:20px 20px}
+  .ans .txt{font-size:15px;line-height:1.55;margin:0 0 16px}
   .ans .txt b{color:var(--navy2)}
-  .big{font-size:30px;font-weight:800;color:var(--text)}
-  .delta{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:6px;margin-left:6px}
+  .big{font-size:24px;font-weight:500;color:var(--text)}
+  .delta{font-size:13px;font-weight:500;padding:2px 8px;border-radius:var(--obz-radius-sm);margin-left:8px}
   .delta.up{background:var(--red-t);color:var(--red)}.delta.ok{background:var(--green-t);color:var(--green)}
-  .trace{margin-top:8px;border:1px dashed #b9c9d3;border-radius:10px;background:var(--card2)}
-  .trace summary{cursor:pointer;padding:10px 14px;font-size:12.5px;font-weight:700;color:var(--navy2);list-style:none;display:flex;align-items:center;gap:8px}
+  .trace{margin-top:8px;border:1px dashed var(--obz-surface-4);border-radius:var(--obz-radius-md);background:var(--card2)}
+  .trace summary{cursor:pointer;padding:12px 16px;font-size:13px;font-weight:500;color:var(--navy2);list-style:none;display:flex;align-items:center;gap:8px}
   .trace summary::-webkit-details-marker{display:none}
-  .trace summary .tag{background:var(--gold-t);color:var(--gold-d);border-radius:5px;font-size:10px;padding:2px 7px;font-weight:800}
+  .trace summary .tag{background:var(--gold-t);color:var(--gold-d);border-radius:var(--obz-radius-sm);font-size:10px;padding:2px 8px;font-weight:500}
   .trace .tbody{padding:2px 16px 16px}
-  .trace pre{background:var(--navy);color:#bfe0e6;padding:13px 15px;border-radius:8px;overflow:auto;line-height:1.5;margin:8px 0;font-family:var(--mono);font-size:12px}
+  .trace pre{background:var(--navy);color:var(--obz-text-on-dark-medium);padding:12px 16px;border-radius:var(--obz-radius-md);overflow:auto;line-height:1.5;margin:8px 0;font-family:var(--mono);font-size:12px}
   .trace .hl{color:var(--gold)}
-  .trace .src{font-size:11.5px;color:var(--muted);margin-top:6px}.trace .src b{color:var(--text)}
-  .footnote{font-size:11px;color:#8ea0ad;text-align:center;margin-top:30px;line-height:1.6}
+  .trace .src{font-size:12px;color:var(--muted);margin-top:8px}.trace .src b{color:var(--text)}
+  .footnote{font-size:12px;color:var(--obz-text-medium-emphasis);text-align:center;margin-top:32px;line-height:1.6}
   @media(max-width:900px){.g4,.g6,.gauges{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr}.side{display:none}.bar{grid-template-columns:120px 1fr 44px}}
   /* ---------- live connection (Data Cube via Power BI REST) ---------- */
-  .connbtn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#dce6ec;padding:6px 12px;border-radius:8px;font:600 12px var(--sans);cursor:pointer}
+  .connbtn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:var(--obz-text-on-dark-medium);padding:8px 12px;border-radius:var(--obz-radius-md);font:500 12px var(--sans);cursor:pointer}
   .connbtn:hover{border-color:var(--gold);color:#fff}
   .connbtn:focus-visible,.fsel:focus-visible,.dlg button:focus-visible,.dlg select:focus-visible,.dlg input:focus-visible,.dlg textarea:focus-visible,.chip:focus-visible,.askbar button:focus-visible,.nav a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-  .connbtn .dot{width:8px;height:8px;border-radius:50%;background:#7d8f9b}
-  .connbtn.live .dot{background:#3ddc84;box-shadow:0 0 0 3px rgba(61,220,132,.18)}
+  .connbtn .dot{width:8px;height:8px;border-radius:50%;background:var(--obz-text-on-dark-disabled)}
+  .connbtn.live .dot{background:var(--obz-accent-lime);box-shadow:0 0 0 3px rgba(61,220,132,.18)}
   .connbtn.warn .dot{background:var(--gold)}
-  .demostrip{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--gold-t);border:1px solid #f0d79a;color:#6b4a00;border-radius:10px;padding:9px 14px;font-size:12.5px;margin-bottom:16px}
+  .demostrip{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--gold-t);border:1px solid color-mix(in srgb,var(--obz-accent-orange) 40%,white);color:var(--obz-text-high-emphasis);border-radius:var(--obz-radius-md);padding:8px 16px;font-size:13px;margin-bottom:16px}
   .demostrip[hidden]{display:none}
-  .demostrip button{background:var(--navy);color:#fff;border:none;border-radius:7px;padding:7px 12px;font:700 12px var(--sans);cursor:pointer;white-space:nowrap}
-  .demostrip.err{background:var(--red-t);border-color:#f0b9b5;color:var(--red)}
-  .fsel{font:700 11.5px var(--sans);color:var(--navy);background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:5px 8px;max-width:190px}
-  .flab{font-size:11.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
-  .slot .loading{color:var(--muted2);font-size:12px;padding:10px 0}
-  .slot .loading::before{content:"";display:inline-block;width:10px;height:10px;border:2px solid #c9d6de;border-top-color:var(--blue);border-radius:50%;margin-right:8px;vertical-align:-1px;animation:spin .8s linear infinite}
+  .demostrip button{background:var(--navy);color:#fff;border:none;border-radius:var(--obz-radius-sm);padding:8px 12px;font:500 12px var(--sans);cursor:pointer;white-space:nowrap}
+  .demostrip.err{background:var(--red-t);border-color:color-mix(in srgb,var(--obz-accent-red) 30%,white);color:var(--red)}
+  .fsel{font:500 12px var(--sans);color:var(--navy);background:var(--card2);border:1px solid var(--border);border-radius:var(--obz-radius-sm);padding:4px 8px;max-width:190px}
+  .flab{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+  .slot .loading{color:var(--muted2);font-size:12px;padding:12px 0}
+  .slot .loading::before{content:"";display:inline-block;width:10px;height:10px;border:2px solid var(--obz-surface-3);border-top-color:var(--blue);border-radius:50%;margin-right:8px;vertical-align:-1px;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .slot .err,.dlg .err{background:var(--red-t);color:var(--red);border-radius:8px;padding:9px 11px;font-size:12px;line-height:1.45}
-  .slot .empty{color:var(--muted);font-size:12.5px;padding:8px 0}
-  details.qx{margin-top:12px;border-top:1px dashed #d3dee5;padding-top:8px}
-  details.qx summary{cursor:pointer;font-size:11px;font-weight:700;color:var(--muted2);list-style:none}
+  .slot .err,.dlg .err{background:var(--red-t);color:var(--red);border-radius:var(--obz-radius-md);padding:8px 12px;font-size:12px;line-height:1.45}
+  .slot .empty{color:var(--muted);font-size:13px;padding:8px 0}
+  details.qx{margin-top:12px;border-top:1px dashed var(--obz-surface-3);padding-top:8px}
+  details.qx summary{cursor:pointer;font-size:12px;font-weight:500;color:var(--muted2);list-style:none}
   details.qx summary::-webkit-details-marker{display:none}
-  details.qx pre{background:var(--navy);color:#bfe0e6;padding:10px 12px;border-radius:8px;overflow:auto;font:11.5px/1.5 var(--mono);margin:8px 0 0;white-space:pre}
-  .kpi .v.ld{color:#c9d6de}
+  details.qx pre{background:var(--navy);color:var(--obz-text-on-dark-medium);padding:12px 12px;border-radius:var(--obz-radius-md);overflow:auto;font:12px/1.5 var(--mono);margin:8px 0 0;white-space:pre}
+  .kpi .v.ld{color:var(--obz-surface-3)}
   .linechart{width:100%;height:auto;display:block}
   .tscroll{overflow-x:auto}
-  .b-mute{background:#eef2f5;color:#4a6070}
-  .notice{background:#fff;border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .b-mute{background:var(--obz-surface-2);color:var(--obz-text-high-emphasis)}
+  .notice{background:#fff;border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:var(--obz-radius-md);padding:12px 16px;font-size:13px;color:var(--muted);margin-bottom:16px}
   .notice b{color:var(--text)}
   /* dialog */
   .modal{position:fixed;inset:0;background:rgba(1,36,53,.55);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px;z-index:50;overflow:auto}
   .modal[hidden]{display:none}
-  .dlg{background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(1,36,53,.35);width:100%;max-width:560px;padding:22px 24px 20px}
-  .dlg h2{margin:0 0 4px;font-size:18px}
-  .dlg .cap{font-size:12.5px;color:var(--muted);margin:0 0 14px}
-  .dlg label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin:12px 0 4px}
-  .dlg input[type=text],.dlg textarea,.dlg select{width:100%;font:13px var(--sans);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:#fff}
+  .dlg{background:#fff;border-radius:var(--obz-radius-md);box-shadow:var(--obz-elevation-overlay);width:100%;max-width:560px;padding:24px 24px 20px}
+  .dlg h2{margin:0 0 4px;font-size:20px}
+  .dlg .cap{font-size:13px;color:var(--muted);margin:0 0 16px}
+  .dlg label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin:12px 0 4px}
+  .dlg input[type=text],.dlg textarea,.dlg select{width:100%;font:13px var(--sans);color:var(--text);border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:8px 12px;background:#fff}
   .dlg textarea{font:12px/1.4 var(--mono);resize:vertical}
-  .dlg .hint{font-size:11.5px;color:var(--muted2);margin-top:5px;line-height:1.45}
-  .dlg .hint code,.dlg details code{font:11px var(--mono);background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:1px 4px;word-break:break-all}
-  .dlg .drop{border:1.5px dashed #b9c9d3;border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--muted);cursor:pointer;background:var(--card2)}
-  .dlg .drop.over{border-color:var(--blue);background:#e8f4f6}
+  .dlg .hint{font-size:12px;color:var(--muted2);margin-top:4px;line-height:1.45}
+  .dlg .hint code,.dlg details code{font:12px var(--mono);background:var(--card2);border:1px solid var(--border);border-radius:var(--obz-radius-sm);padding:1px 4px;word-break:break-all}
+  .dlg .drop{border:1.5px dashed var(--obz-surface-4);border-radius:var(--obz-radius-md);padding:12px 16px;font-size:13px;color:var(--muted);cursor:pointer;background:var(--card2)}
+  .dlg .drop.over{border-color:var(--blue);background:color-mix(in srgb,var(--obz-accent-blue) 12%,white)}
   .dlg .drop b{color:var(--text)}
   .dlg .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .dlg details{margin-top:10px;font-size:12px;color:var(--muted)}
-  .dlg details summary{cursor:pointer;font-weight:700;color:var(--navy2)}
-  .dlg details ol{margin:8px 0 0;padding-left:18px;line-height:1.6}
-  .dlg .chk{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--text);font-size:12.5px;margin-top:14px}
-  .dlg .who{font-size:12px;color:var(--green);margin-top:5px;font-weight:600}
-  .dlg .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-  .dlg button{font:700 13px var(--sans);border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--navy)}
+  .dlg details{margin-top:12px;font-size:12px;color:var(--muted)}
+  .dlg details summary{cursor:pointer;font-weight:500;color:var(--navy2)}
+  .dlg details ol{margin:8px 0 0;padding-left:20px;line-height:1.6}
+  .dlg .chk{display:flex;align-items:center;gap:8px;font-weight:500;color:var(--text);font-size:13px;margin-top:16px}
+  .dlg .who{font-size:12px;color:var(--green);margin-top:4px;font-weight:500}
+  .dlg .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+  .dlg button{font:500 13px var(--sans);border-radius:var(--obz-radius-md);padding:8px 16px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--navy)}
   .dlg button.primary{background:var(--gold);border-color:var(--gold);color:var(--navy)}
   .dlg button.primary:hover{background:var(--gold-d)}
   .dlg button.primary[disabled]{opacity:.5;cursor:default}
@@ -195,117 +232,136 @@
   .dlg .err{margin-top:12px}
   @media(max-width:600px){.dlg .row2{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){.view.show{animation:none}.slot .loading::before{animation:none}}
-  .dlg .mstop{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--card2)}
-  .dlg .msbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid #8c8c8c;color:#5e5e5e;font:600 14px 'Segoe UI',system-ui,sans-serif;padding:10px 16px;border-radius:4px}
+  .dlg .mstop{border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:16px;background:var(--card2)}
+  .dlg .msbtn{display:inline-flex;align-items:center;gap:12px;background:#fff;border:1px solid #8c8c8c;color:#5e5e5e;font:500 14px 'Segoe UI',system-ui,sans-serif;padding:12px 16px;border-radius:var(--obz-radius-sm)}
   .dlg .msbtn:hover{background:#f3f3f3}
   .dlg .mstop[hidden]{display:none}
-  .dlg #cTokenBox{border-top:1px dashed #d3dee5;padding-top:10px}
-  .understood{font-size:11.5px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;margin-bottom:12px;line-height:1.6}
+  .dlg #cTokenBox{border-top:1px dashed var(--obz-surface-3);padding-top:12px}
+  .understood{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:8px 12px;margin-bottom:12px;line-height:1.6}
   .understood b{color:var(--navy2)}
-  .airow{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12.5px;color:rgba(255,255,255,.75);flex-wrap:wrap}
-  .aisw{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:#fff;cursor:pointer;position:relative}
+  .airow{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:13px;color:rgba(255,255,255,.75);flex-wrap:wrap}
+  .aisw{display:inline-flex;align-items:center;gap:8px;font-weight:500;color:#fff;cursor:pointer;position:relative}
   .aisw input{position:absolute;opacity:0;width:34px;height:20px;margin:0;cursor:pointer}
-  .aisw .trk{width:34px;height:20px;border-radius:10px;background:rgba(255,255,255,.25);position:relative;transition:background .2s}
-  .aisw .trk::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+  .aisw .trk{width:34px;height:20px;border-radius:var(--obz-radius-full);background:rgba(255,255,255,.25);position:relative;transition:background var(--obz-motion-fast) var(--obz-ease-standard)}
+  .aisw .trk::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform var(--obz-motion-fast) var(--obz-ease-standard)}
   .aisw input:checked+.trk{background:var(--gold)}
   .aisw input:checked+.trk::after{transform:translateX(14px)}
   .aisw input:focus-visible+.trk{outline:2px solid var(--gold);outline-offset:2px}
-  .aigear{background:none;border:1px solid rgba(255,255,255,.25);color:#dbe6ec;border-radius:7px;padding:4px 10px;font:600 12px var(--sans);cursor:pointer;margin-left:auto}
+  .aigear{background:none;border:1px solid rgba(255,255,255,.25);color:var(--obz-text-on-dark-medium);border-radius:var(--obz-radius-sm);padding:4px 12px;font:500 12px var(--sans);cursor:pointer;margin-left:auto}
   .aigear:hover,.aigear:focus-visible{border-color:var(--gold);color:#fff;outline:none}
-  .aibadge{display:inline-block;font:700 10px var(--sans);letter-spacing:.04em;text-transform:uppercase;background:var(--gold-t);color:#7a5200;border-radius:5px;padding:2px 6px;margin-left:8px}
-  .aimeta{font-size:11.5px;color:var(--muted2);margin-top:10px}
+  .aibadge{display:inline-block;font:500 10px var(--sans);letter-spacing:.04em;text-transform:uppercase;background:var(--gold-t);color:var(--obz-text-high-emphasis);border-radius:var(--obz-radius-sm);padding:2px 8px;margin-left:8px}
+  .aimeta{font-size:12px;color:var(--muted2);margin-top:12px}
   .ans .sentence{font-size:15px;line-height:1.55;margin:0 0 12px}
   /* work health */
-  .hq{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-left:4px solid var(--blue);padding:2px 0 2px 12px;margin-bottom:14px}
+  .hq{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-left:4px solid var(--blue);padding:2px 0 2px 12px;margin-bottom:16px}
   .hq h3{margin:0;font-size:16px;color:var(--navy)}
   .hq p{margin:0;font-size:13px;color:var(--muted)}
   .hq p b{color:var(--text)}
   .hkpi .k{display:flex;justify-content:space-between}
   .hkpi .k span{font-size:10px;letter-spacing:.06em;color:var(--muted2)}
-  .hkpi .hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:8px 0 6px}
-  .hkpi .v{font-size:30px;font-weight:800;line-height:1;color:var(--navy)}
-  .hkpi .v small{font-size:15px;color:var(--muted);font-weight:600;margin-left:2px}
-  .hkpi.focus{border-color:#e6b4b0;box-shadow:0 0 0 1px #e6b4b0,var(--shadow)}
+  .hkpi .hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:8px 0 8px}
+  .hkpi .v{font-size:24px;font-weight:500;line-height:1;color:var(--navy)}
+  .hkpi .v small{font-size:15px;color:var(--muted);font-weight:500;margin-left:2px}
+  .hkpi.focus{border-color:color-mix(in srgb,var(--obz-accent-red) 30%,white);box-shadow:0 0 0 1px color-mix(in srgb,var(--obz-accent-red) 30%,white),var(--shadow)}
   .hspark{width:92px;height:34px;flex:none}
   .hdrow{font-size:12px;min-height:16px}
-  .hd{font-weight:800}
+  .hd{font-weight:500}
   .hvs{color:var(--muted)}
-  .hkpi .foot{margin-top:6px;color:var(--muted);font-weight:500;font-size:11.5px;line-height:1.4}
+  .hkpi .foot{margin-top:8px;color:var(--muted);font-weight:500;font-size:12px;line-height:1.4}
   .hbanner{display:flex;align-items:center;gap:24px;margin-top:16px;border-left:4px solid var(--red)}
-  .hbanner .hbig{font-size:38px;font-weight:800;color:var(--red);min-width:120px;text-align:center}
+  .hbanner .hbig{font-size:32px;font-weight:500;color:var(--red);min-width:120px;text-align:center}
   .hbanner h3{margin:0 0 4px;font-size:15px}
   .hbanner p{margin:0;font-size:13px;color:var(--muted);max-width:640px;line-height:1.5}
   .hg2{grid-template-columns:3fr 2fr}
-  .hhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .hhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
   .hhead h3{margin:0}
-  .hhead span{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);white-space:nowrap}
-  .hnote{border-top:1px dashed #d3dee5;margin-top:8px;padding-top:8px;font-size:12.5px;color:var(--muted)}
+  .hhead span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);white-space:nowrap}
+  .hnote{border-top:1px dashed var(--obz-surface-3);margin-top:8px;padding-top:8px;font-size:13px;color:var(--muted)}
   .hnote b{color:var(--text)}
   .hempty{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-  .her{display:grid;grid-template-columns:minmax(130px,1.5fr) 2fr minmax(96px,auto);gap:10px;align-items:center;font-size:12.5px}
+  .her{display:grid;grid-template-columns:minmax(130px,1.5fr) 2fr minmax(96px,auto);gap:12px;align-items:center;font-size:13px}
   .her>b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .het{height:14px;background:#eef2f5;border-radius:4px;overflow:hidden}
-  .het div{height:100%;background:#b3261e;border-radius:4px}
+  .het{height:14px;background:var(--obz-surface-2);border-radius:var(--obz-radius-sm);overflow:hidden}
+  .het div{height:100%;background:var(--dv-bad);border-radius:var(--obz-radius-sm)}
   .hev b{font-size:14px}
-  .hev span{display:block;font-size:10.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.04em}
+  .hev span{display:block;font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.04em}
   .htrend h4{margin:0;font-size:13px}
-  .htrend .hsub{font-size:10.5px;color:var(--muted2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+  .htrend .hsub{font-size:10px;color:var(--muted2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
   .htrend svg{width:100%;height:auto;display:block}
   .hpairs{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-  .hpair{display:grid;grid-template-columns:minmax(110px,1.2fr) 2fr minmax(120px,auto);gap:10px;align-items:center;font-size:12.5px}
+  .hpair{display:grid;grid-template-columns:minmax(110px,1.2fr) 2fr minmax(120px,auto);gap:12px;align-items:center;font-size:13px}
   .hpair .hn b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .hpair .hn span{font:11px var(--mono);color:var(--muted2)}
-  .hpair .ht{position:relative;height:14px;background:#f3f6f8;border-radius:4px;overflow:hidden}
-  .hpair .hc{position:absolute;inset:0 auto 0 0;background:#c7d3da;border-radius:4px}
-  .hpair .he{position:absolute;inset:0 auto 0 0;background:#b3261e;border-radius:4px}
+  .hpair .hn span{font:12px var(--mono);color:var(--muted2)}
+  .hpair .ht{position:relative;height:14px;background:var(--dv-track);border-radius:var(--obz-radius-sm);overflow:hidden}
+  .hpair .hc{position:absolute;inset:0 auto 0 0;background:var(--dv-neutral);border-radius:var(--obz-radius-sm)}
+  .hpair .he{position:absolute;inset:0 auto 0 0;background:var(--dv-bad);border-radius:var(--obz-radius-sm)}
   .hpair .hv{color:var(--muted)}
-  .hpair .hv b{color:var(--red);font-size:13.5px}
-  .hpair .hv span{display:block;font-size:11px}
-  .badge.b-crit{background:var(--red-t);color:var(--red)}
+  .hpair .hv b{color:var(--red);font-size:14px}
+  .hpair .hv span{display:block;font-size:12px}
+  .badge.b-crit{background:color-mix(in srgb,var(--obz-accent-red) 10%,white);color:var(--obz-accent-red)}
   .hdefs summary{cursor:pointer;font-size:13px;color:var(--navy2)}
-  .hdefbody{font-size:12.5px;color:var(--muted);line-height:1.55;max-width:820px}
+  .hdefbody{font-size:13px;color:var(--muted);line-height:1.55;max-width:820px}
   .hdefbody b{color:var(--text)}
-  @media(max-width:1000px){.hg2{grid-template-columns:1fr}.hbanner{flex-direction:column;align-items:flex-start;gap:6px}.hbanner .hbig{text-align:left}}
-  .psub{font-size:13px;font-weight:600;color:var(--muted2);margin-left:6px}
+  @media(max-width:1000px){.hg2{grid-template-columns:1fr}.hbanner{flex-direction:column;align-items:flex-start;gap:8px}.hbanner .hbig{text-align:left}}
+  .psub{font-size:13px;font-weight:500;color:var(--muted2);margin-left:8px}
   .estate{text-align:center;padding:44px 24px}
-  .estate .eic{font-size:28px;color:var(--blue);margin-bottom:6px}
-  .estate h3{margin:0 0 6px;font-size:17px}
+  .estate .eic{font-size:28px;color:var(--blue);margin-bottom:8px}
+  .estate h3{margin:0 0 8px;font-size:16px}
   .estate p{margin:0 auto 16px;max-width:560px;color:var(--muted);font-size:13px;line-height:1.55}
-  .estate button,.sfbtn{background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:8px 16px;font:700 13px var(--sans);cursor:pointer}
+  .estate button,.sfbtn{background:var(--gold);color:var(--navy);border:none;border-radius:var(--obz-radius-md);padding:8px 16px;font:500 13px var(--sans);cursor:pointer}
   .sfbtn.ghost{background:#fff;border:1px solid var(--border)}
   .sfbtn:disabled{opacity:.6;cursor:default}
-  .sfchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .sfchips span{background:#e8f4f6;color:var(--navy2);border-radius:14px;padding:4px 10px;font-size:12px;font-weight:600}
-  .sfsearch{width:100%;margin:10px 0 8px;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font:13px var(--sans)}
-  .sflist{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:6px 10px}
-  .sflist label{display:flex;gap:8px;align-items:center;padding:4px 0;font-size:12.5px;border-bottom:1px solid #f0f3f6}
+  .sfchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .sfchips span{background:color-mix(in srgb,var(--obz-accent-blue) 12%,white);color:var(--navy2);border-radius:var(--obz-radius-md);padding:4px 12px;font-size:12px;font-weight:500}
+  .sfsearch{width:100%;margin:12px 0 8px;border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:8px 12px;font:13px var(--sans)}
+  .sflist{max-height:280px;overflow:auto;border:1px solid var(--border);border-radius:var(--obz-radius-md);padding:8px 12px}
+  .sflist label{display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px;border-bottom:1px solid var(--obz-surface-2)}
   .sflist label[hidden]{display:none}
-  .sflist label span{margin-left:auto;color:var(--muted2);font:11px var(--mono)}
-  .sflist label em{font-style:normal;font-size:10px;font-weight:700;color:#7a5200;background:var(--gold-t);border-radius:4px;padding:1px 5px}
+  .sflist label span{margin-left:auto;color:var(--muted2);font:12px var(--mono)}
+  .sflist label em{font-style:normal;font-size:10px;font-weight:500;color:var(--obz-text-high-emphasis);background:var(--gold-t);border-radius:var(--obz-radius-sm);padding:1px 4px}
   .sfage{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-  .sfa{display:grid;grid-template-columns:110px 1fr minmax(120px,auto);gap:10px;align-items:center;font-size:12.5px}
-  .sft{display:flex;height:14px;background:#f3f6f8;border-radius:4px;overflow:hidden}
+  .sfa{display:grid;grid-template-columns:110px 1fr minmax(120px,auto);gap:12px;align-items:center;font-size:13px}
+  .sft{display:flex;height:14px;background:var(--dv-track);border-radius:var(--obz-radius-sm);overflow:hidden}
   .sfa span{color:var(--muted)}
   .sfa span b{color:var(--red)}
   .hkpi .k span{white-space:nowrap;margin-left:8px}
   .fbar:empty{display:none}
   /* my views */
-  .nav .vhint{font-size:11.5px;color:#7f93a1;padding:4px 12px 8px;line-height:1.45}
+  .nav .vhint{font-size:12px;color:var(--obz-text-on-dark-low);padding:4px 12px 8px;line-height:1.45}
   .nav a.vlink .vt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
   .nav a.vlink.other{opacity:.55}
   .nav a.vlink:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-  .savebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed #d3dee5;font-size:12px;color:var(--muted)}
-  .savebar .sfbtn{padding:6px 12px;font-size:12.5px}
+  .savebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px dashed var(--obz-surface-3);font-size:12px;color:var(--muted)}
+  .savebar .sfbtn{padding:8px 12px;font-size:13px}
   .vtools{display:flex;gap:8px;margin-top:12px}
-  .vtools .sfbtn{padding:6px 12px;font-size:12.5px}
+  .vtools .sfbtn{padding:8px 12px;font-size:13px}
+
+  /* ---------- co-brand: organisation + Obzervr (always both) ---------- */
+  .brand{padding:16px 16px 16px;border-bottom:1px solid var(--obz-border-on-dark);display:flex;flex-direction:column;gap:12px}
+  .org{display:flex;align-items:center;gap:12px;min-width:0}
+  .orgmark{width:40px;height:40px;flex:none;border-radius:var(--obz-radius-sm);background:var(--obz-surface-1);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .orgmark img{max-width:32px;max-height:32px;object-fit:contain;display:block}
+  .orgmark .ini{font:500 15px/1 var(--obz-font-family);color:var(--obz-brand-primary);letter-spacing:.5px}
+  .orgtx{min-width:0}
+  .orgname{font:500 14px/20px var(--obz-font-family);color:var(--obz-text-on-dark-high);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .orgsub{font:400 12px/16px var(--obz-font-family);color:var(--obz-text-on-dark-low)}
+  .powered{display:flex;align-items:center;gap:8px;font:400 10px/16px var(--obz-font-family);color:var(--obz-text-on-dark-low)}
+  .obzlogo{height:20px;width:auto;color:var(--obz-text-on-dark-high);display:block}
+  .topbrand{display:none;align-items:center;gap:8px;margin-right:12px}
+  .topbrand .orgmark{width:28px;height:28px}
+  .topbrand .orgmark img{max-width:22px;max-height:22px}
+  .topbrand .orgmark .ini{font-size:12px}
+  .topbrand .obzlogo{height:16px}
+  .topbrand .sep{width:1px;height:20px;background:var(--obz-border-on-dark-strong)}
+  @media(max-width:900px){.topbrand{display:flex}.top{justify-content:flex-start;gap:12px}.top>div:last-child{margin-left:auto}}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="side">
     <div class="brand">
-      <img class="brandlogo" alt="obzervr" src="Obzervr%20Logo%202025%20-%20White%201000px.png">
-      <span class="bs">Analytics Portal</span>
+      <div class="org"><div class="orgmark" id="orgMark" aria-hidden="true"></div><div class="orgtx"><div class="orgname" id="orgName">Your organisation</div><div class="orgsub">Analytics Portal</div></div></div>
+      <div class="powered"><span>Powered by</span><svg class="obzlogo" viewBox="0 0 146 48" role="img" aria-label="Obzervr" focusable="false"><path fill="currentColor" d="M37.5195531,32.8506722 C37.5195531,38.0725276 40.6829133,41.4915254 45.6917403,41.4915254 C50.7386967,41.4915254 53.9776226,38.0725276 53.9776226,32.7752938 C53.9776226,27.5534385 50.776133,24.1351322 45.767306,24.1351322 C40.758479,24.1351322 37.5195531,27.5534385 37.5195531,32.8506722 L37.5195531,32.8506722 Z M40.7959152,32.7752938 C40.7959152,29.0561655 42.7169477,26.689699 45.7298697,26.689699 C48.7427918,26.689699 50.663131,29.0561655 50.663131,32.8506722 C50.663131,36.5331487 48.7802281,38.8989237 45.767306,38.8989237 C42.7543839,38.8989237 40.7959152,36.5331487 40.7959152,32.7752938 L40.7959152,32.7752938 Z M72.5931274,32.662572 C72.5931274,27.4033733 69.4672035,24.247854 64.8348184,24.247854 C63.1397898,24.247854 61.6714582,24.6613978 60.5414391,25.5998242 L60.5414391,16.7715624 C60.5414391,15.9078228 60.0138658,15.4576271 58.9219761,15.4576271 C57.8675227,15.4576271 57.3780789,15.9078228 57.3780789,16.7715624 L57.3780789,37.5842969 C57.3780789,38.5234148 57.3780789,39.4251893 58.6585361,40.1762071 C59.7878619,40.8532295 61.8212031,41.416147 63.9682393,41.416147 C69.3160721,41.416147 72.5931274,37.9978407 72.5931274,32.662572 L72.5931274,32.662572 Z M60.5414391,37.8851189 L60.5414391,28.0797041 C61.5584563,27.2539996 62.7633478,26.8397642 64.156807,26.8397642 C67.3957329,26.8397642 69.3160721,29.2816091 69.3160721,32.8506722 C69.3160721,36.5331487 67.2827309,38.8242368 63.9682393,38.8242368 C62.6877821,38.8242368 61.4454544,38.4867629 60.5414391,37.8851189 L60.5414391,37.8851189 Z M83.1903495,27.3279949 L75.0930347,37.9598058 C74.4150233,38.8242368 74.1515832,39.1997457 74.1515832,39.91342 C74.1515832,40.7031643 74.6410271,41.1160166 75.5450424,41.1160166 L86.2788373,41.1160166 C87.1447231,41.1160166 87.5967307,40.6644378 87.5967307,39.7633548 C87.5967307,38.8622718 87.1447231,38.4480364 86.2788373,38.4480364 L78.0685206,38.4480364 L86.1658354,27.8169171 C86.7682811,27.0278644 87.0691574,26.5396337 87.0691574,25.8639944 C87.0691574,25.0742501 86.617843,24.6613978 85.7138277,24.6613978 L75.5076062,24.6613978 C74.6410271,24.6613978 74.1897127,25.1115936 74.1897127,26.0140596 C74.1897127,26.9151426 74.6410271,27.3279949 75.5076062,27.3279949 L83.1903495,27.3279949 Z M101.971544,37.1341012 C101.595102,37.1341012 101.21866,37.3968882 100.653651,37.7723971 C99.6366336,38.4480364 98.4317421,38.711515 97.1887211,38.711515 C94.0253608,38.711515 92.4058979,36.7952442 92.1043284,33.7144118 L101.708104,33.7144118 C102.951125,33.7144118 103.666573,33.4896597 103.666573,31.4980105 C103.666573,27.2539996 100.879655,24.1351322 96.5481458,24.1351322 C91.916454,24.1351322 88.9784044,27.5914735 88.9784044,32.8506722 C88.9784044,38.1485975 91.9913265,41.416147 97.0382829,41.416147 C99.1097535,41.416147 100.841525,40.9279164 102.234291,39.98949 C102.988561,39.5005677 103.327567,39.0496805 103.327567,38.5234148 C103.327567,37.9224623 102.875559,37.1341012 101.971544,37.1341012 L101.971544,37.1341012 Z M96.4732734,26.651664 C99.1471897,26.651664 100.578085,28.6059698 100.578085,31.3486368 L92.1424579,31.3486368 C92.4433341,28.4178696 93.9872314,26.651664 96.4732734,26.651664 L96.4732734,26.651664 Z M110.335765,29.9205966 C111.578093,27.2152731 113.499126,27.2152731 114.440577,27.1412778 C115.49503,27.1032428 116.06004,26.8397642 116.06004,25.712546 C116.06004,24.5860194 115.49503,24.247854 114.704017,24.247854 C112.746242,24.247854 111.126779,25.3370372 110.184634,27.3667214 L110.184634,25.3370372 C110.184634,24.8488065 109.99676,24.3225409 108.753739,24.3225409 C107.473281,24.3225409 107.172405,24.8868415 107.172405,25.6752026 L107.172405,39.98949 C107.172405,40.8532295 107.699285,41.3034252 108.791175,41.3034252 C109.846321,41.3034252 110.335765,40.8532295 110.335765,39.98949 L110.335765,29.9205966 Z M125.998662,37.5842969 L121.253275,25.7512726 C120.839397,24.6613978 120.500391,24.3225409 119.332936,24.3225409 C118.278482,24.3225409 117.901347,24.6987413 117.901347,25.2243154 C117.901347,25.5624808 118.014349,25.9760246 118.16548,26.3895685 L123.739317,39.7633548 C124.190631,40.8532295 124.529637,41.3034252 125.923096,41.3034252 C127.166117,41.3034252 127.618125,40.9279164 128.107569,39.7633548 L133.794407,26.3895685 C133.944845,25.9760246 134.057847,25.5624808 134.057847,25.2243154 C134.057847,24.6987413 133.681405,24.3225409 132.626952,24.3225409 C131.535062,24.3225409 131.196057,24.6613978 130.781485,25.7512726 L125.998662,37.5842969 Z M139.597714,30.0333184 C140.539165,28.0416692 141.933318,27.2152731 144.343101,27.1412778 C145.435684,27.1032428 146,26.8397642 146,25.6752026 C146,24.6613978 145.586122,24.247854 144.569105,24.247854 C142.157935,24.247854 140.426163,25.449759 139.446582,27.5160951 L139.446582,25.6385507 C139.484712,24.8488065 139.070141,24.3225409 137.978251,24.3225409 C136.923798,24.3225409 136.434354,24.7741197 136.434354,25.6385507 L136.434354,39.98949 C136.434354,40.8532295 136.961234,41.3034252 138.053123,41.3034252 C139.10827,41.3034252 139.597714,40.8532295 139.597714,39.98949 L139.597714,30.0333184 L139.597714,30.0333184 Z"/><path fill="currentColor" d="M16.0238842,48 C15.5501405,48 15.0798149,47.8635443 14.6675964,47.5947681 C13.9525374,47.1282 13.525963,46.337722 13.525963,45.4790162 L13.525963,20.5221037 C13.525963,19.6399661 14.2348695,18.9246077 15.1112611,18.9246077 C15.9862855,18.9246077 16.6958756,19.6399661 16.6958756,20.5221037 L16.6958756,44.4142486 C25.9800211,39.8161065 27.0081748,33.2152364 27.0081748,30.5281626 C27.0081748,23.2870537 20.9513653,12.0687447 15.0887019,3.68637023 C9.22672205,12.0687447 3.16991258,23.2870537 3.16991258,30.5281626 C3.16991258,34.9319588 5.34175047,38.7995808 9.6245847,42.0228288 C10.3266551,42.5514221 10.4708974,43.5520969 9.94724995,44.2591853 C9.42291892,44.9669629 8.43031313,45.1123778 7.72892639,44.5837844 C2.67224246,40.7788769 0,35.9188502 0,30.5281626 C0,26.0271935 1.85259071,20.2202472 5.50581754,13.2679005 C8.32572037,7.902023 11.4491473,3.30939425 13.0604227,1.04960588 C13.5286974,0.392137719 14.2875077,0 15.0887019,0 C15.8912633,0 16.6500735,0.392137719 17.1176647,1.04891671 C18.7289401,3.30939425 21.852367,7.902023 24.6722698,13.2679005 C28.3261802,20.2202472 30.1787709,26.0271935 30.1787709,30.5281626 C30.1787709,35.0084567 28.3918071,39.0387227 24.8691503,42.5066261 C22.0417277,45.2894945 18.7576518,47.0034602 17.0506706,47.7767089 C16.7211692,47.9262588 16.3711595,48 16.0238842,48"/></svg></div>
     </div>
     <nav class="nav">
       <div class="lbl">Intelligence</div>
@@ -318,12 +374,12 @@
       <div class="lbl">My views</div>
       <div id="myViews"></div>
     </nav>
-    <div class="foot" id="sideFoot">Mockup · Shape-Up PROD-1882<br>Demo tenant: <b style="color:#9fb3c0">Agnico Fosterville</b><br>Illustrative data</div>
+    <div class="foot" id="sideFoot">Mockup · Shape-Up PROD-1882<br>Demo tenant: <b style="color:#bbbbbb">Agnico Fosterville</b><br>Illustrative data</div>
   </aside>
 
   <div class="main">
     <header class="top">
-      <div>
+      <div class="topbrand" aria-label="Organisation and Obzervr"><div class="orgmark" id="orgMarkTop" aria-hidden="true"></div><span class="sep"></span><svg class="obzlogo" viewBox="0 0 146 48" role="img" aria-label="Obzervr" focusable="false"><path fill="currentColor" d="M37.5195531,32.8506722 C37.5195531,38.0725276 40.6829133,41.4915254 45.6917403,41.4915254 C50.7386967,41.4915254 53.9776226,38.0725276 53.9776226,32.7752938 C53.9776226,27.5534385 50.776133,24.1351322 45.767306,24.1351322 C40.758479,24.1351322 37.5195531,27.5534385 37.5195531,32.8506722 L37.5195531,32.8506722 Z M40.7959152,32.7752938 C40.7959152,29.0561655 42.7169477,26.689699 45.7298697,26.689699 C48.7427918,26.689699 50.663131,29.0561655 50.663131,32.8506722 C50.663131,36.5331487 48.7802281,38.8989237 45.767306,38.8989237 C42.7543839,38.8989237 40.7959152,36.5331487 40.7959152,32.7752938 L40.7959152,32.7752938 Z M72.5931274,32.662572 C72.5931274,27.4033733 69.4672035,24.247854 64.8348184,24.247854 C63.1397898,24.247854 61.6714582,24.6613978 60.5414391,25.5998242 L60.5414391,16.7715624 C60.5414391,15.9078228 60.0138658,15.4576271 58.9219761,15.4576271 C57.8675227,15.4576271 57.3780789,15.9078228 57.3780789,16.7715624 L57.3780789,37.5842969 C57.3780789,38.5234148 57.3780789,39.4251893 58.6585361,40.1762071 C59.7878619,40.8532295 61.8212031,41.416147 63.9682393,41.416147 C69.3160721,41.416147 72.5931274,37.9978407 72.5931274,32.662572 L72.5931274,32.662572 Z M60.5414391,37.8851189 L60.5414391,28.0797041 C61.5584563,27.2539996 62.7633478,26.8397642 64.156807,26.8397642 C67.3957329,26.8397642 69.3160721,29.2816091 69.3160721,32.8506722 C69.3160721,36.5331487 67.2827309,38.8242368 63.9682393,38.8242368 C62.6877821,38.8242368 61.4454544,38.4867629 60.5414391,37.8851189 L60.5414391,37.8851189 Z M83.1903495,27.3279949 L75.0930347,37.9598058 C74.4150233,38.8242368 74.1515832,39.1997457 74.1515832,39.91342 C74.1515832,40.7031643 74.6410271,41.1160166 75.5450424,41.1160166 L86.2788373,41.1160166 C87.1447231,41.1160166 87.5967307,40.6644378 87.5967307,39.7633548 C87.5967307,38.8622718 87.1447231,38.4480364 86.2788373,38.4480364 L78.0685206,38.4480364 L86.1658354,27.8169171 C86.7682811,27.0278644 87.0691574,26.5396337 87.0691574,25.8639944 C87.0691574,25.0742501 86.617843,24.6613978 85.7138277,24.6613978 L75.5076062,24.6613978 C74.6410271,24.6613978 74.1897127,25.1115936 74.1897127,26.0140596 C74.1897127,26.9151426 74.6410271,27.3279949 75.5076062,27.3279949 L83.1903495,27.3279949 Z M101.971544,37.1341012 C101.595102,37.1341012 101.21866,37.3968882 100.653651,37.7723971 C99.6366336,38.4480364 98.4317421,38.711515 97.1887211,38.711515 C94.0253608,38.711515 92.4058979,36.7952442 92.1043284,33.7144118 L101.708104,33.7144118 C102.951125,33.7144118 103.666573,33.4896597 103.666573,31.4980105 C103.666573,27.2539996 100.879655,24.1351322 96.5481458,24.1351322 C91.916454,24.1351322 88.9784044,27.5914735 88.9784044,32.8506722 C88.9784044,38.1485975 91.9913265,41.416147 97.0382829,41.416147 C99.1097535,41.416147 100.841525,40.9279164 102.234291,39.98949 C102.988561,39.5005677 103.327567,39.0496805 103.327567,38.5234148 C103.327567,37.9224623 102.875559,37.1341012 101.971544,37.1341012 L101.971544,37.1341012 Z M96.4732734,26.651664 C99.1471897,26.651664 100.578085,28.6059698 100.578085,31.3486368 L92.1424579,31.3486368 C92.4433341,28.4178696 93.9872314,26.651664 96.4732734,26.651664 L96.4732734,26.651664 Z M110.335765,29.9205966 C111.578093,27.2152731 113.499126,27.2152731 114.440577,27.1412778 C115.49503,27.1032428 116.06004,26.8397642 116.06004,25.712546 C116.06004,24.5860194 115.49503,24.247854 114.704017,24.247854 C112.746242,24.247854 111.126779,25.3370372 110.184634,27.3667214 L110.184634,25.3370372 C110.184634,24.8488065 109.99676,24.3225409 108.753739,24.3225409 C107.473281,24.3225409 107.172405,24.8868415 107.172405,25.6752026 L107.172405,39.98949 C107.172405,40.8532295 107.699285,41.3034252 108.791175,41.3034252 C109.846321,41.3034252 110.335765,40.8532295 110.335765,39.98949 L110.335765,29.9205966 Z M125.998662,37.5842969 L121.253275,25.7512726 C120.839397,24.6613978 120.500391,24.3225409 119.332936,24.3225409 C118.278482,24.3225409 117.901347,24.6987413 117.901347,25.2243154 C117.901347,25.5624808 118.014349,25.9760246 118.16548,26.3895685 L123.739317,39.7633548 C124.190631,40.8532295 124.529637,41.3034252 125.923096,41.3034252 C127.166117,41.3034252 127.618125,40.9279164 128.107569,39.7633548 L133.794407,26.3895685 C133.944845,25.9760246 134.057847,25.5624808 134.057847,25.2243154 C134.057847,24.6987413 133.681405,24.3225409 132.626952,24.3225409 C131.535062,24.3225409 131.196057,24.6613978 130.781485,25.7512726 L125.998662,37.5842969 Z M139.597714,30.0333184 C140.539165,28.0416692 141.933318,27.2152731 144.343101,27.1412778 C145.435684,27.1032428 146,26.8397642 146,25.6752026 C146,24.6613978 145.586122,24.247854 144.569105,24.247854 C142.157935,24.247854 140.426163,25.449759 139.446582,27.5160951 L139.446582,25.6385507 C139.484712,24.8488065 139.070141,24.3225409 137.978251,24.3225409 C136.923798,24.3225409 136.434354,24.7741197 136.434354,25.6385507 L136.434354,39.98949 C136.434354,40.8532295 136.961234,41.3034252 138.053123,41.3034252 C139.10827,41.3034252 139.597714,40.8532295 139.597714,39.98949 L139.597714,30.0333184 L139.597714,30.0333184 Z"/><path fill="currentColor" d="M16.0238842,48 C15.5501405,48 15.0798149,47.8635443 14.6675964,47.5947681 C13.9525374,47.1282 13.525963,46.337722 13.525963,45.4790162 L13.525963,20.5221037 C13.525963,19.6399661 14.2348695,18.9246077 15.1112611,18.9246077 C15.9862855,18.9246077 16.6958756,19.6399661 16.6958756,20.5221037 L16.6958756,44.4142486 C25.9800211,39.8161065 27.0081748,33.2152364 27.0081748,30.5281626 C27.0081748,23.2870537 20.9513653,12.0687447 15.0887019,3.68637023 C9.22672205,12.0687447 3.16991258,23.2870537 3.16991258,30.5281626 C3.16991258,34.9319588 5.34175047,38.7995808 9.6245847,42.0228288 C10.3266551,42.5514221 10.4708974,43.5520969 9.94724995,44.2591853 C9.42291892,44.9669629 8.43031313,45.1123778 7.72892639,44.5837844 C2.67224246,40.7788769 0,35.9188502 0,30.5281626 C0,26.0271935 1.85259071,20.2202472 5.50581754,13.2679005 C8.32572037,7.902023 11.4491473,3.30939425 13.0604227,1.04960588 C13.5286974,0.392137719 14.2875077,0 15.0887019,0 C15.8912633,0 16.6500735,0.392137719 17.1176647,1.04891671 C18.7289401,3.30939425 21.852367,7.902023 24.6722698,13.2679005 C28.3261802,20.2202472 30.1787709,26.0271935 30.1787709,30.5281626 C30.1787709,35.0084567 28.3918071,39.0387227 24.8691503,42.5066261 C22.0417277,45.2894945 18.7576518,47.0034602 17.0506706,47.7767089 C16.7211692,47.9262588 16.3711595,48 16.0238842,48"/></svg></div><div>
         <h1 id="topTitle">Ask anything about your operations</h1>
         <div class="ctx" id="topCtx">Conversational analytics over your Data Cube</div>
       </div>
@@ -476,7 +532,7 @@ function bars(el,rows,opt){
   opt=opt||{};
   var max=opt.max||Math.max.apply(null,rows.map(function(r){return r[1];}));
   el.innerHTML=rows.map(function(r){
-    var c=opt.color||r[2]||'#128295';
+    var c=opt.color||r[2]||'#0d6cb3';
     var w=Math.max(3,Math.round(r[1]/max*100));
     var suf=opt.pct?'%':'';
     return '<div class="bar"><span class="nm">'+r[0]+'</span><div class="track"><div class="fill" style="width:'+w+'%;background:'+c+'"></div></div><span class="val">'+r[1]+suf+'</span></div>';
@@ -484,12 +540,12 @@ function bars(el,rows,opt){
 }
 function donut(id,segs,center,sub){
   var svg=document.getElementById(id);if(!svg)return;
-  var off=25,html='<circle cx="21" cy="21" r="15.9" fill="none" stroke="#e7edf1" stroke-width="6"/>';
+  var off=25,html='<circle cx="21" cy="21" r="15.9" fill="none" stroke="#e2e2e2" stroke-width="6"/>';
   segs.forEach(function(s){
     html+='<circle cx="21" cy="21" r="15.9" fill="none" stroke="'+s[1]+'" stroke-width="6" stroke-dasharray="'+s[0]+' '+(100-s[0])+'" stroke-dashoffset="'+off+'"/>';
     off-=s[0];
   });
-  html+='<text x="21" y="20.5" text-anchor="middle" font-size="6.5" font-weight="800" fill="#012435">'+center+'</text><text x="21" y="26" text-anchor="middle" font-size="3" fill="#4a6070">'+sub+'</text>';
+  html+='<text x="21" y="20.5" text-anchor="middle" font-size="6.5" font-weight="500" fill="#012435">'+center+'</text><text x="21" y="26" text-anchor="middle" font-size="3" fill="#666666">'+sub+'</text>';
   svg.innerHTML=html;
 }
 function gauge(val,target,color){
@@ -497,16 +553,16 @@ function gauge(val,target,color){
   var x=cx+r*Math.cos(ang), y=cy-r*Math.sin(ang);
   var tang=Math.PI*(1-target/100), tx1=cx+(r-7)*Math.cos(tang),ty1=cy-(r-7)*Math.sin(tang),tx2=cx+(r+5)*Math.cos(tang),ty2=cy-(r+5)*Math.sin(tang);
   return '<svg width="118" height="74" viewBox="0 0 100 60">'+
-    '<path d="M12 50 A38 38 0 0 1 88 50" fill="none" stroke="#e7edf1" stroke-width="8" stroke-linecap="round"/>'+
+    '<path d="M12 50 A38 38 0 0 1 88 50" fill="none" stroke="#e2e2e2" stroke-width="8" stroke-linecap="round"/>'+
     '<path d="M12 50 A38 38 0 0 1 '+x.toFixed(1)+' '+y.toFixed(1)+'" fill="none" stroke="'+color+'" stroke-width="8" stroke-linecap="round"/>'+
     '<line x1="'+tx1.toFixed(1)+'" y1="'+ty1.toFixed(1)+'" x2="'+tx2.toFixed(1)+'" y2="'+ty2.toFixed(1)+'" stroke="#012435" stroke-width="1.6"/></svg>';
 }
 function pva(el,rows){
   el.innerHTML=rows.map(function(r){
     var plan=r[1],act=r[2],mx=Math.max(plan,act),pw=Math.round(plan/mx*100),aw=Math.round(act/mx*100),over=act>plan;
-    return '<div><div class="lbl2"><span>'+r[0]+'</span><span style="color:'+(over?'#b3261e':'#1a7a3c')+'">Plan '+plan+'h · Actual '+act+'h '+(over?'▲':'▼')+'</span></div>'+
-      '<div class="dual"><div style="width:'+pw+'%;background:#128295"></div></div>'+
-      '<div class="dual" style="margin-top:3px"><div style="width:'+aw+'%;background:'+(over?'#b3261e':'#1a7a3c')+'"></div></div></div>';
+    return '<div><div class="lbl2"><span>'+r[0]+'</span><span style="color:'+(over?'#c41b23':'#2e7d32')+'">Plan '+plan+'h · Actual '+act+'h '+(over?'▲':'▼')+'</span></div>'+
+      '<div class="dual"><div style="width:'+pw+'%;background:#0d6cb3"></div></div>'+
+      '<div class="dual" style="margin-top:3px"><div style="width:'+aw+'%;background:'+(over?'#c41b23':'#2e7d32')+'"></div></div></div>';
   }).join('');
 }
 function fbar(id,filters,refresh){
@@ -518,8 +574,8 @@ function fbar(id,filters,refresh){
 }
 
 /* ---------- data ---------- */
-var woTeam=[['Underground Maint.',96,'#128295'],['Fixed Plant',91,'#128295'],['Mobile Maint.',88,'#128295'],['Electrical',83,'#c9860a'],['Workshop',76,'#c9860a']];
-var woStatus=[['Completed',237,'#1a7a3c'],['In Progress',64,'#128295'],['Planned',114,'#013d5a'],['Overdue',41,'#b3261e']];
+var woTeam=[['Underground Maint.',96,'#0d6cb3'],['Fixed Plant',91,'#0d6cb3'],['Mobile Maint.',88,'#0d6cb3'],['Electrical',83,'#fca60e'],['Workshop',76,'#fca60e']];
+var woStatus=[['Completed',237,'#2e7d32'],['In Progress',64,'#0d6cb3'],['Planned',114,'#012435'],['Overdue',41,'#c41b23']];
 var woPVA=[['1000HR Service · EX04',12,52],['Replace drive shaft · SL08',6,24],['Rebuild drill parts · JB14',8,18],['Transmission change · TR27',40,91]];
 var woRows=[
   ['830153','Transmission filter full of metal','Breakdown','UG / Loader','Pending','06/07'],
@@ -528,29 +584,29 @@ var woRows=[
   ['830462','Allocation of consumables','Unplanned','Surface','Completed','09/07'],
   ['819048','Inspect engine oil leak (warranty)','Planned','Workshop','Planned','—']
 ];
-var suTpl=[['PM · Daily Service',312,'#128295'],['PM · 250HR Service',141,'#128295'],['CR · Hydraulic repair',96,'#c9860a'],['BD · Breakdown call',88,'#b3261e'],['PL · Planned change-out',74,'#128295'],['UN · Ad hoc',52,'#c9860a']];
-var suUsers=[['T. Bain',184,'#128295'],['H. Ernest',162,'#128295'],['M. Lowe',151,'#128295'],['J. Park',133,'#128295'],['S. Kaur',98,'#128295'],['Others (18)',420,'#9fb3c0']];
-var suExc=[['Critical · open',38,'#b3261e'],['Major · open',83,'#c9860a'],['Minor · open',62,'#013d5a'],['Resolved',203,'#1a7a3c']];
-var suAdopt=[['Licensed',120,'#c7d3da'],['Active (30d)',70,'#128295'],['Opened analytics',28,'#c9860a']];
-var pmGauges=[['Trucks',96.0,'#1a7a3c'],['Boggers',71.1,'#b3261e'],['Longhole Drill',66.7,'#b3261e'],['Jumbo',79.7,'#c9860a']];
-var pmHours=[['Actual Hours','842 h','',''],['Estimated Hours','910 h','-7%','#1a7a3c'],['Actual Downtime','118 h','',''],['Estimated Downtime','86 h','+37%','#b3261e']];
-var pmBad=[['915 · Engine System',21.7,'#b3261e'],['918 · Electrical 24V',15.6,'#b3261e'],['902 · Blown Hose',14.0,'#c9860a'],['912 · Cabin A/C',12.0,'#c9860a'],['939 · U/S Bucket Tooth',2.8,'#128295'],['901 · Braking System',2.6,'#128295']];
+var suTpl=[['PM · Daily Service',312,'#0d6cb3'],['PM · 250HR Service',141,'#0d6cb3'],['CR · Hydraulic repair',96,'#fca60e'],['BD · Breakdown call',88,'#c41b23'],['PL · Planned change-out',74,'#0d6cb3'],['UN · Ad hoc',52,'#fca60e']];
+var suUsers=[['T. Bain',184,'#0d6cb3'],['H. Ernest',162,'#0d6cb3'],['M. Lowe',151,'#0d6cb3'],['J. Park',133,'#0d6cb3'],['S. Kaur',98,'#0d6cb3'],['Others (18)',420,'#bbbbbb']];
+var suExc=[['Critical · open',38,'#c41b23'],['Major · open',83,'#fca60e'],['Minor · open',62,'#012435'],['Resolved',203,'#2e7d32']];
+var suAdopt=[['Licensed',120,'#bbbbbb'],['Active (30d)',70,'#0d6cb3'],['Opened analytics',28,'#fca60e']];
+var pmGauges=[['Trucks',96.0,'#2e7d32'],['Boggers',71.1,'#c41b23'],['Longhole Drill',66.7,'#c41b23'],['Jumbo',79.7,'#fca60e']];
+var pmHours=[['Actual Hours','842 h','',''],['Estimated Hours','910 h','-7%','#2e7d32'],['Actual Downtime','118 h','',''],['Estimated Downtime','86 h','+37%','#c41b23']];
+var pmBad=[['915 · Engine System',21.7,'#c41b23'],['918 · Electrical 24V',15.6,'#c41b23'],['902 · Blown Hose',14.0,'#fca60e'],['912 · Cabin A/C',12.0,'#fca60e'],['939 · U/S Bucket Tooth',2.8,'#0d6cb3'],['901 · Braking System',2.6,'#0d6cb3']];
 var pmTrend=[78,80,82,79,84,88,91,93,95,92,97,99];
 var pmHier=[['LV783 (parent)','Light Vehicle','1,240','38','rollup'],['↳ LV783 Engine','Component','—','21','child'],['↳ LV783 Gearbox','Component','—','9','child'],['↳ LV783 Brakes','Component','—','8','child'],['EX04 (parent)','Excavator','980','64','rollup']];
-var psTop=[['LD18 Bogger',9,'#b3261e'],['JB14 Jumbo',7,'#b3261e'],['TR26 Truck',6,'#c9860a'],['LH11 Longhole',5,'#c9860a'],['EX04 Excavator',3,'#128295']];
+var psTop=[['LD18 Bogger',9,'#c41b23'],['JB14 Jumbo',7,'#c41b23'],['TR26 Truck',6,'#fca60e'],['LH11 Longhole',5,'#fca60e'],['EX04 Excavator',3,'#0d6cb3']];
 var psRows=[['LD18','Bogger','Hydraulic leak in arm','Critical','Crew C'],['JB14','Jumbo','Blown hose 902','Critical','Crew B'],['TR26','Truck','Brake system fault 901','Critical','Crew D'],['LH11','Longhole','24V electrical intermittent','Critical','Crew A']];
 var psHeat=[['TR26',[1,1,1,1,2,1,3]],['LD18',[1,1,2,1,1,3,3]],['JB14',[1,1,1,2,1,1,3]],['LH11',[1,2,1,1,1,1,3]],['EX04',[1,1,1,1,1,1,1]],['GR07',[1,1,0,1,1,1,1]]];
-var hmColor=['#d4dde2','#1a7a3c','#c9860a','#b3261e'];
+var hmColor=['#e2e2e2','#2e7d32','#fca60e','#c41b23'];
 
 /* ---------- AI answers ---------- */
 var ANS={
   sched:{q:"Are we going to hit this week's maintenance schedule?",
     html:'<p class="txt">Yes. You are at <span class="big">237</span> of <b>240</b> completed (WTD) with <b>95.6%</b><span class="delta ok">goal 80%</span> completion. 11 scheduled orders remain; at the current rate you reach the 240 target.</p><div class="bars" id="ansBars"></div>',
-    after:function(){bars(document.getElementById('ansBars'),[['Completed WTD',237,'#1a7a3c'],['Target WTD',240,'#9fb3c0'],['Scheduled total',248,'#128295']]);},
+    after:function(){bars(document.getElementById('ansBars'),[['Completed WTD',237,'#2e7d32'],['Target WTD',240,'#bbbbbb'],['Scheduled total',248,'#0d6cb3']]);},
     trace:{m:"[ASGT - Assignment Complete %]",dax:'DIVIDE(\n  CALCULATE([ASGT - Assignment Count], <span class="hl">Dim_Is_Completed[Value] = TRUE</span>),\n  [ASGT - Assignment Count]\n)',src:"Cube → <b>Assignments</b> × <b>Dim_Assignment_Status</b> × <b>Dim_Date_FromDate</b>"}},
   cat:{q:"How much of my work is planned vs breakdown?",
     html:'<p class="txt"><span class="big">59.8%</span> planned, <b>28.7%</b> breakdown and <b>11.6%</b> unplanned across 415 orders this week. Breakdown is high — concentrated in boggers.</p><div class="bars" id="ansBars"></div>',
-    after:function(){bars(document.getElementById('ansBars'),[['Planned',248,'#128295'],['Breakdown',119,'#b3261e'],['Unplanned',48,'#c9860a']]);},
+    after:function(){bars(document.getElementById('ansBars'),[['Planned',248,'#0d6cb3'],['Breakdown',119,'#c41b23'],['Unplanned',48,'#fca60e']]);},
     trace:{m:"[ASGT - Assignment Count] by Type",dax:'SUMMARIZECOLUMNS(\n  <span class="hl">Dim_Template_Groups[Work Category]</span>,\n  "WO", [ASGT - Assignment Count]\n)',src:"Cube → <b>Assignments</b> × <b>Dim_Published_Worktemplates</b> (category roll-up)"}},
   badactor:{q:"Which asset is costing me the most downtime?",
     html:'<p class="txt">The <b>boggers</b> (71.1% availability, below the 85% target). The biggest reason code is <b>915 · Engine System</b> at <span class="big">21.7</span> h over 7 days, then 918 · Electrical.</p><div class="bars" id="ansBars"></div>',
@@ -562,7 +618,7 @@ var ANS={
     trace:{m:"[FM - Exception Count] by level",dax:'SUMMARIZECOLUMNS(\n  Dim_Exception_Level_FM[Exception_Level],\n  <span class="hl">Dim_Is_Resolved[Name]</span>,\n  "n", [FM - Exception Count]\n)',src:"Cube → <b>Assignment_FieldMeasurement_Exceptions</b> × <b>Dim_Exception_Level_FM</b>"}},
   prestart:{q:"How is prestart compliance today?",
     html:'<p class="txt"><span class="big">92%</span><span class="delta ok">goal 95%</span> — 128 of 139 prestarts completed before shift. <b>4 critical defects</b> left equipment not operable (LD18, JB14, TR26, LH11). Crew D is lowest at 79%.</p><div class="bars" id="ansBars"></div>',
-    after:function(){bars(document.getElementById('ansBars'),[['Crew A',98,'#1a7a3c'],['Crew B',94,'#1a7a3c'],['Crew C',88,'#c9860a'],['Crew D',79,'#b3261e'],['Surface',96,'#1a7a3c']],{pct:true});},
+    after:function(){bars(document.getElementById('ansBars'),[['Crew A',98,'#2e7d32'],['Crew B',94,'#2e7d32'],['Crew C',88,'#fca60e'],['Crew D',79,'#c41b23'],['Surface',96,'#2e7d32']],{pct:true});},
     trace:{m:"[PR - Count Prestart Operativo]",dax:'DIVIDE(\n  CALCULATE([PR - Count Prestart], <span class="hl">CompletedBeforeShift = TRUE</span>),\n  [Scheduled Equipment]\n)',src:"Cube → <b>Prestart_TimeSeries_FieldMeasurements</b> × <b>Prestart_Dim_Shift</b> × <b>Dim_AssignmentPoints</b>"}}
 };
 function ask(k){var a=ANS[k];document.getElementById('ask').value=a.q;render(a);}
@@ -580,7 +636,7 @@ function render(a){
   box.innerHTML='<div class="ans"><div class="q">✦ <b>You asked:</b> '+a.q+'</div><div class="body">'+a.html+
     '<details class="trace"><summary><span class="tag">TRACEABLE</span> See how this was calculated ▾</summary><div class="tbody">'+
     '<div style="font-size:12px;color:var(--muted);margin-bottom:2px">Semantic-layer measure:</div>'+
-    '<code style="font-size:13px;font-weight:700;color:var(--navy2)">'+a.trace.m+'</code>'+
+    '<code style="font-size:13px;font-weight:500;color:var(--navy2)">'+a.trace.m+'</code>'+
     '<pre>'+a.trace.dax+'</pre><div class="src">Source: '+a.trace.src+'</div></div></details></div></div>';
   if(a.after)a.after();
   box.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -597,14 +653,14 @@ function woTable(){
 }
 function pmHourCards(){
   document.getElementById('pmHours').innerHTML=pmHours.map(function(r){
-    var d=r[2]?'<div class="d" style="color:'+r[3]+'">'+r[2]+' vs est.</div>':'<div class="d" style="color:#4a6070">&nbsp;</div>';
+    var d=r[2]?'<div class="d" style="color:'+r[3]+'">'+r[2]+' vs est.</div>':'<div class="d" style="color:#666666">&nbsp;</div>';
     return '<div class="it"><div class="l">'+r[0]+'</div><div class="vv">'+r[1]+'</div>'+d+'</div>';
   }).join('');
 }
 function pmHierTable(){
   var h='<tr><th>Plant Item</th><th>Type</th><th>Asset Hours</th><th>Downtime (h)</th><th></th></tr>';
   document.getElementById('pmHier').innerHTML=h+pmHier.map(function(r){
-    var st=r[4]==='rollup'?'font-weight:700':'color:#4a6070';
+    var st=r[4]==='rollup'?'font-weight:500':'color:#666666';
     var tag=r[4]==='rollup'?'<span class="badge b-planned">roll-up</span>':'<span class="badge b-warn">child</span>';
     return '<tr><td style="'+st+'">'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+tag+'</td></tr>';
   }).join('');
@@ -619,7 +675,7 @@ function psHeatmap(){
   var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   var html='<div class="hrow"><span></span>'+days.map(function(d){return '<span class="hh">'+d+'</span>';}).join('')+'</div>';
   html+=psHeat.map(function(r){
-    return '<div class="hrow"><span class="lab">'+r[0]+'</span>'+r[1].map(function(v){return '<div class="hc" style="background:'+hmColor[v]+'">'+(v===3?'✕':(v===2?'!':''))+'</div>';}).join('')+'</div>';
+    return '<div class="hrow"><span class="lab">'+r[0]+'</span>'+r[1].map(function(v){return '<div class="hc" style="background:'+hmColor[v]+(v===2?';color:rgba(0,0,0,.87)':'')+'">'+(v===3?'✕':(v===2?'!':''))+'</div>';}).join('')+'</div>';
   }).join('');
   document.getElementById('psHeat').innerHTML=html;
 }
@@ -631,18 +687,18 @@ function pmTrendChart(){
   var area=line+' L'+pts[pts.length-1][0].toFixed(1)+' '+(h-pad)+' L'+pad+' '+(h-pad)+' Z';
   function yOf(val){return h-pad-(val-mn)/(mx-mn)*(h-2*pad-18);}
   var up=yOf(95),lo=yOf(74);
-  svg.innerHTML='<rect x="'+pad+'" y="'+up.toFixed(1)+'" width="'+(w-2*pad)+'" height="'+(lo-up).toFixed(1)+'" fill="#1a7a3c" opacity="0.05"/>'+
-    '<line x1="'+pad+'" y1="'+up.toFixed(1)+'" x2="'+(w-pad)+'" y2="'+up.toFixed(1)+'" stroke="#b3261e" stroke-width="1.1" stroke-dasharray="4 3"/>'+
-    '<text x="'+(w-pad)+'" y="'+(up-3).toFixed(1)+'" text-anchor="end" font-size="8.5" fill="#b3261e">upper limit 95°C</text>'+
-    '<line x1="'+pad+'" y1="'+lo.toFixed(1)+'" x2="'+(w-pad)+'" y2="'+lo.toFixed(1)+'" stroke="#128295" stroke-width="1" stroke-dasharray="4 3"/>'+
-    '<text x="'+(w-pad)+'" y="'+(lo+9).toFixed(1)+'" text-anchor="end" font-size="8.5" fill="#128295">lower limit 74°C</text>'+
-    '<path d="'+area+'" fill="#128295" opacity="0.10"/>'+
-    '<path d="'+line+'" fill="none" stroke="#013d5a" stroke-width="2.2"/>'+
-    pts.map(function(p,i){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.6" fill="'+(pmTrend[i]>95?'#b3261e':'#013d5a')+'"/>';}).join('');
+  svg.innerHTML='<rect x="'+pad+'" y="'+up.toFixed(1)+'" width="'+(w-2*pad)+'" height="'+(lo-up).toFixed(1)+'" fill="#2e7d32" opacity="0.05"/>'+
+    '<line x1="'+pad+'" y1="'+up.toFixed(1)+'" x2="'+(w-pad)+'" y2="'+up.toFixed(1)+'" stroke="#c41b23" stroke-width="1.1" stroke-dasharray="4 3"/>'+
+    '<text x="'+(w-pad)+'" y="'+(up-3).toFixed(1)+'" text-anchor="end" font-size="8.5" fill="#c41b23">upper limit 95°C</text>'+
+    '<line x1="'+pad+'" y1="'+lo.toFixed(1)+'" x2="'+(w-pad)+'" y2="'+lo.toFixed(1)+'" stroke="#0d6cb3" stroke-width="1" stroke-dasharray="4 3"/>'+
+    '<text x="'+(w-pad)+'" y="'+(lo+9).toFixed(1)+'" text-anchor="end" font-size="8.5" fill="#0d6cb3">lower limit 74°C</text>'+
+    '<path d="'+area+'" fill="#0d6cb3" opacity="0.10"/>'+
+    '<path d="'+line+'" fill="none" stroke="#012435" stroke-width="2.2"/>'+
+    pts.map(function(p,i){return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.6" fill="'+(pmTrend[i]>95?'#c41b23':'#012435')+'"/>';}).join('');
 }
 function pmGaugeRender(){
   document.getElementById('pmGauges').innerHTML=pmGauges.map(function(g){
-    return '<div class="gz"><div class="lab">'+g[0]+'</div>'+gauge(g[1],85,g[2])+'<div class="gv" style="color:'+g[2]+'">'+g[1].toFixed(1)+'%</div><div class="tg">target 85%</div></div>';
+    return '<div class="gz"><div class="lab">'+g[0]+'</div>'+gauge(g[1],85,g[2])+'<div class="gv" style="color:'+obzInk(g[2])+'">'+g[1].toFixed(1)+'%</div><div class="tg">target 85%</div></div>';
   }).join('');
 }
 
@@ -688,7 +744,7 @@ document.getElementById('ask').addEventListener('keydown',function(e){if(e.key==
     </div>
     <div class="who" id="cWho"></div>
     <details id="cTokenBox">
-      <summary>Or connect with a Power BI access token</summary>
+      <summary>Use an access token instead</summary>
       <div class="drop" id="cDrop" tabindex="0" role="button" style="margin-top:10px"><b>Drop credentials.txt</b> here, or click to choose it. Reads <code>ACCESS_TOKEN=</code>, <code>WORKSPACE_ID=</code> and <code>DATASET_ID=</code>.</div>
       <input type="file" id="cFile" accept=".txt,.env,text/plain" hidden>
       <label for="cToken">Power BI access token</label>
@@ -749,7 +805,7 @@ document.getElementById('ask').addEventListener('keydown',function(e){if(e.key==
    Workspace.Read.All). tenant 'organizations' lets any work account sign in:
    Entra works out the user's directory from the email they type.
    Admins can override for testing in the URL: ?client=<id>&tenant=<id>   */
-var AUTH_CONFIG = { clientId: 'c5ae0e69-4e5f-4021-9837-d30ceca7e5db', tenant: 'organizations' };
+var AUTH_CONFIG = { clientId: 'PASTE-OBZERVR-PORTAL-CLIENT-ID', tenant: 'organizations' };
 var PBI = 'https://api.powerbi.com/v1.0/myorg/';
 var STORE_KEY = 'obz-portal-cube';
 var SCOPES = ['https://analysis.windows.net/powerbi/api/Dataset.Read.All', 'https://analysis.windows.net/powerbi/api/Workspace.Read.All'];
@@ -777,8 +833,8 @@ function pct(x) { return x == null ? '—' : (Math.round(x * 1000) / 10).toLocal
 function dstr(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }
 function dshort(iso) { if (!iso) return '—'; var d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }); }
 function periodText() { return 'last ' + F.days + ' days'; }
-var PALETTE = ['#128295', '#b3261e', '#c9860a', '#013d5a', '#1a7a3c', '#7a5c99', '#9fb3c0'];
-var STATUS_COL = { 'Completed': '#1a7a3c', 'Finalised': '#0f5c2c', 'Approved': '#1a7a3c', 'In Progress': '#128295', 'Assigned': '#3a9db0', 'Open': '#013d5a', 'On Hold': '#c9860a', 'Cancelled': '#9fb3c0' };
+var PALETTE = ['#0d6cb3', '#c41b23', '#fca60e', '#012435', '#2e7d32', '#7a0099', '#bbbbbb'];
+var STATUS_COL = { 'Completed': '#2e7d32', 'Finalised': '#17796b', 'Approved': '#2e7d32', 'In Progress': '#0d6cb3', 'Assigned': '#139db0', 'Open': '#012435', 'On Hold': '#fca60e', 'Cancelled': '#bbbbbb' };
 
 /* ---------- token ---------- */
 function jwt(t) {
@@ -906,9 +962,9 @@ function lineChart(el, labels, series) {
   var mx = Math.max.apply(null, all.concat([1])); mx = Math.ceil(mx * 1.1);
   var n = labels.length, xs = function (i) { return L + (n === 1 ? (W - L - R) / 2 : i * (W - L - R) / (n - 1)); }, ys = function (v) { return T + (H - T - B) * (1 - (v || 0) / mx); };
   var g = '';
-  [0, .5, 1].forEach(function (f) { var y = ys(mx * f); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="#e7edf1"/><text x="' + (L - 4) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="8" fill="#6e8090">' + fmt(mx * f, 0) + '</text>'; });
+  [0, .5, 1].forEach(function (f) { var y = ys(mx * f); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="#e2e2e2"/><text x="' + (L - 4) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="8" fill="#666666">' + fmt(mx * f, 0) + '</text>'; });
   var step = Math.max(1, Math.ceil(n / 7));
-  labels.forEach(function (l, i) { if (i % step === 0 || i === n - 1) g += '<text x="' + xs(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (n > 1 && i === n - 1 ? 'end' : i === 0 && n > 1 ? 'start' : 'middle') + '" font-size="8" fill="#6e8090">' + esc(l) + '</text>'; });
+  labels.forEach(function (l, i) { if (i % step === 0 || i === n - 1) g += '<text x="' + xs(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (n > 1 && i === n - 1 ? 'end' : i === 0 && n > 1 ? 'start' : 'middle') + '" font-size="8" fill="#666666">' + esc(l) + '</text>'; });
   series.forEach(function (s) {
     var d = s.vals.map(function (v, i) { return (i ? 'L' : 'M') + xs(i).toFixed(1) + ' ' + ys(v).toFixed(1); }).join(' ');
     g += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2"/>';
@@ -967,14 +1023,14 @@ var LIVE = {
     });
     fill('wo', gen, 'cWoTeam', qs.team, function (el, r) {
       r.sort(function (a, b) { return (b.pct || 0) - (a.pct || 0); });
-      liveBars(el, r.map(function (x) { return [(x.Name || 'No team') + ' · ' + fmt(x.n, 0), x.pct || 0, x.pct >= .9 ? '#128295' : x.pct >= .8 ? '#3a9db0' : '#c9860a']; }), { pct: true, max: 1 });
+      liveBars(el, r.map(function (x) { return [(x.Name || 'No team') + ' · ' + fmt(x.n, 0), x.pct || 0, x.pct >= .9 ? '#0d6cb3' : x.pct >= .8 ? '#139db0' : '#fca60e']; }), { pct: true, max: 1 });
     });
     fill('wo', gen, 'cWoSt', qs.st, function (el, r) {
       r = r.filter(function (x) { return x.n; }).sort(function (a, b) { return b.n - a.n; });
-      liveBars(el, r.map(function (x) { return [x.Status_Name || 'Unknown', x.n, STATUS_COL[x.Status_Name] || '#013d5a']; }));
+      liveBars(el, r.map(function (x) { return [x.Status_Name || 'Unknown', x.n, STATUS_COL[x.Status_Name] || '#012435']; }));
     });
     fill('wo', gen, 'cWoDay', qs.day, function (el, r) {
-      lineChart(el, r.map(function (x) { return dshort(x.Date); }), [{ name: 'Scheduled', color: '#013d5a', vals: r.map(function (x) { return x.n; }) }, { name: 'Completed', color: '#1a7a3c', vals: r.map(function (x) { return x.done; }) }]);
+      lineChart(el, r.map(function (x) { return dshort(x.Date); }), [{ name: 'Scheduled', color: '#012435', vals: r.map(function (x) { return x.n; }) }, { name: 'Completed', color: '#2e7d32', vals: r.map(function (x) { return x.done; }) }]);
     });
     fill('wo', gen, 'cWoRows', qs.rows, function (el, r) {
       if (!r.length) { el.innerHTML = '<div class="empty">No work orders in this period.</div>'; return; }
@@ -996,29 +1052,29 @@ var LIVE = {
       '</div>';
     fill('pm', gen, 'pmKq', qs.k, function (el, r) {
       r = r[0] || {};
-      function d(a, e) { if (a == null || !e) return ['', '']; var x = (a - e) / e; return [(x > 0 ? '+' : '') + Math.round(x * 100) + '%', x > 0 ? '#b3261e' : '#1a7a3c']; }
+      function d(a, e) { if (a == null || !e) return ['', '']; var x = (a - e) / e; return [(x > 0 ? '+' : '') + Math.round(x * 100) + '%', x > 0 ? '#c41b23' : '#2e7d32']; }
       var dh = d(r.ah, r.eh), dd = d(r.ad, r.ed);
       var it = [['Actual hours', r.ah, '', ''], ['Estimated hours', r.eh, dh[0], dh[1]], ['Actual downtime', r.ad, '', ''], ['Estimated downtime', r.ed, dd[0], dd[1]]];
       $('pmHoursL').innerHTML = it.map(function (x) {
-        return '<div class="it"><div class="l">' + x[0] + '</div><div class="vv">' + (x[1] == null ? '—' : fmt(x[1]) + ' h') + '</div><div class="d" style="color:' + (x[3] || '#4a6070') + '">' + (x[2] ? 'actual ' + x[2] + ' vs est.' : '&nbsp;') + '</div></div>';
+        return '<div class="it"><div class="l">' + x[0] + '</div><div class="vv">' + (x[1] == null ? '—' : fmt(x[1]) + ' h') + '</div><div class="d" style="color:' + obzInk(x[3] || '#666666') + '">' + (x[2] ? 'actual ' + x[2] + ' vs est.' : '&nbsp;') + '</div></div>';
       }).join('');
     });
     fill('pm', gen, 'cPmDay', qs.day, function (el, r) {
-      lineChart(el, r.map(function (x) { return dshort(x.Date); }), [{ name: 'Downtime (h)', color: '#b3261e', vals: r.map(function (x) { return x.dt; }) }, { name: 'Out of range', color: '#c9860a', vals: r.map(function (x) { return x.oor; }) }]);
+      lineChart(el, r.map(function (x) { return dshort(x.Date); }), [{ name: 'Downtime (h)', color: '#c41b23', vals: r.map(function (x) { return x.dt; }) }, { name: 'Out of range', color: '#fca60e', vals: r.map(function (x) { return x.oor; }) }]);
     });
     fill('pm', gen, 'cPmBad', qs.bad, function (el, r) {
       r = r.filter(function (x) { return x.dt; }).sort(function (a, b) { return b.dt - a.dt; });
-      liveBars(el, r.map(function (x, i) { return [x.Point_Name, x.dt, i < 2 ? '#b3261e' : i < 4 ? '#c9860a' : '#128295']; }), { suf: ' h', empty: 'No downtime readings in this period.' });
+      liveBars(el, r.map(function (x, i) { return [x.Point_Name, x.dt, i < 2 ? '#c41b23' : i < 4 ? '#fca60e' : '#0d6cb3']; }), { suf: ' h', empty: 'No downtime readings in this period.' });
     });
     fill('pm', gen, 'cPmOor', qs.oor, function (el, r) {
       r = r.filter(function (x) { return x.oor; }).sort(function (a, b) { return b.oor - a.oor; });
-      liveBars(el, r.map(function (x) { return [x.Point_Name, x.oor, '#c9860a']; }), { empty: 'No out-of-range readings in this period.' });
+      liveBars(el, r.map(function (x) { return [x.Point_Name, x.oor, '#fca60e']; }), { empty: 'No out-of-range readings in this period.' });
     });
     fill('pm', gen, 'cPmHier', qs.hier, function (el, r) {
       r.sort(function (a, b) { return b.wo - a.wo; });
       if (!r.length) { el.innerHTML = '<div class="empty">No work orders in this period.</div>'; return; }
       el.innerHTML = '<div class="tscroll"><table class="dt"><tr><th>Parent</th><th>Work orders</th><th>Downtime (h)</th><th>Items</th></tr>' +
-        r.map(function (x) { return '<tr><td style="font-weight:700">' + esc(x['Level 1 - Name'] || '—') + '</td><td>' + fmt(x.wo, 0) + '</td><td>' + fmt(x.dt) + '</td><td>' + fmt(x.pts, 0) + '</td></tr>'; }).join('') + '</table></div>';
+        r.map(function (x) { return '<tr><td style="font-weight:500">' + esc(x['Level 1 - Name'] || '—') + '</td><td>' + fmt(x.wo, 0) + '</td><td>' + fmt(x.dt) + '</td><td>' + fmt(x.pts, 0) + '</td></tr>'; }).join('') + '</table></div>';
     });
   }
 };
@@ -1073,19 +1129,20 @@ function updateTitles(v) {
 function setMode() {
   var b = $('connBtn'), lab = $('connLabel');
   b.classList.toggle('live', Cube.live);
-  lab.textContent = Cube.live ? 'Live · ' + (Cube.group ? Cube.group + ' · ' + Cube.members.length + ' sites' : Cube.tenants.length === 1 ? Cube.tenants[0] : Cube.wsName.replace(/^\*\s*/, '') || 'Data Cube') : 'Connect to Data Cube';
-  $('demoBtn').textContent = 'Connect';
+  lab.textContent = Cube.live ? 'Live · ' + (Cube.group ? Cube.group + ' · ' + Cube.members.length + ' sites' : Cube.tenants.length === 1 ? Cube.tenants[0] : Cube.wsName.replace(/^\*\s*/, '') || 'Data Cube') : (msalReady() ? 'Sign in with Microsoft' : 'Connect to Data Cube');
+  $('demoBtn').textContent = msalReady() ? 'Sign in with Microsoft' : 'Connect';
   b.title = Cube.live ? 'Connected to ' + Cube.dsName + ' in ' + Cube.wsName + ' as ' + whoText(Cube.claims || {}) + '. ' + (Auth.account ? 'Signed in with Microsoft; the token renews on its own.' : 'Token expires ' + new Date(Cube.claims.exp * 1000).toLocaleTimeString() + '.') : (msalReady() ? 'Sign in with your Microsoft work account' : 'Connect with a Power BI access token');
   $('aiPill').textContent = Cube.live ? '✦ AI Portal · live' : '✦ AI Portal · concept';
   $('demoStrip').hidden = Cube.live;
+  if (typeof renderOrgBrand === 'function') renderOrgBrand();
   $('sideFoot').innerHTML = Cube.live
-    ? 'Live · ' + esc(Cube.dsName) + '<br>Workspace: <b style="color:#9fb3c0">' + esc(Cube.wsName) + '</b><br>As ' + esc((Cube.claims && (Cube.claims.upn || Cube.claims.name)) || 'you') + ' (RLS applies)'
+    ? 'Live · ' + esc(Cube.dsName) + '<br>Workspace: <b style="color:#bbbbbb">' + esc(Cube.wsName) + '</b><br>As ' + esc((Cube.claims && (Cube.claims.upn || Cube.claims.name)) || 'you') + ' (RLS applies)'
     : 'Shape-Up PROD-1882<br>Not connected<br>Connect to load your Data Cube';
   $('footnote').innerHTML = Cube.live
     ? 'Live from Power BI · dataset "' + esc(Cube.dsName) + '" in workspace "' + esc(Cube.wsName) + '". Every number comes from a DAX query you can open under its card. Row-level security is applied by Power BI from your token.'
     : 'Shape-Up PROD-1882 · every number on this portal comes from your Data Cube through DAX. Connect to load it.';
   $('heroHi').innerHTML = 'Hi' + (userFirstName() ? ' ' + esc(userFirstName()) : '') + ' 👋 What do you want to know? <b>Just ask.</b>';
-  var as = $('askSite'); if (as) as.innerHTML = Cube.live && isGroup() ? '<label class="flab" style="color:#dbe6ec">Site <select class="fsel" data-f="site">' + Cube.members.map(function (m, i) { return opt(String(i), m.site, String(Cube.primary || 0)); }).join('') + '</select></label>' : '';
+  var as = $('askSite'); if (as) as.innerHTML = Cube.live && isGroup() ? '<label class="flab" style="color:rgba(255,255,255,.82)">Site <select class="fsel" data-f="site">' + Cube.members.map(function (m, i) { return opt(String(i), m.site, String(Cube.primary || 0)); }).join('') + '</select></label>' : '';
   if (Cube.live) {
     ['fbar-wo', 'fbar-pm', 'fbar-safety'].forEach(liveFbar); healthFbar();
   } else {
@@ -1109,7 +1166,7 @@ function tokenProblem(msg) {
   $('connBtn').classList.add('warn');
   s.hidden = false; s.classList.add('err');
   $('demoText').textContent = msg;
-  $('demoBtn').textContent = Auth.account ? 'Sign in again' : 'Paste a new token';
+  $('demoBtn').textContent = Auth.account || msalReady() ? 'Sign in again' : 'Paste a new token';
 }
 
 /* ---------- Microsoft sign-in (MSAL, redirect flow) ---------- */
@@ -1123,7 +1180,7 @@ function msalApp() {
   if (Auth.app) return Auth.app;
   var c = authCfg();
   Auth.app = new msal.PublicClientApplication({
-    auth: { clientId: c.clientId, authority: 'https://login.microsoftonline.com/' + c.tenant, redirectUri: location.origin + location.pathname.replace(/index\.html$/, ''), navigateToLoginRequestUrl: true },
+    auth: { clientId: c.clientId, authority: 'https://login.microsoftonline.com/' + c.tenant, redirectUri: location.origin + location.pathname, navigateToLoginRequestUrl: true },
     cache: { cacheLocation: 'localStorage' }
   });
   return Auth.app;
@@ -1195,7 +1252,36 @@ async function probe(m) {
   m.tenants = r[1].map(function (x) { return x.Tenant_Name; });
   m.teams = r[2].map(function (x) { return x.Name; });
   m.site = siteName(m);
+  m.logo = await orgLogo(m);
   return m;
+}
+/* Organisation logo from TenantSettings (LogoBase64), which the Data Cube exposes as
+   Organisation_Info[Logo_Base64] (one per organisation) and Dim_Tenant[Logo_Base64] (per tenant).
+   Never fatal: a cube without these columns just falls back to the initials tile. */
+async function orgLogo(m) {
+  var q = [
+    'EVALUATE\nTOPN(1, FILTER(Organisation_Info, LEN(Organisation_Info[Logo_Base64]) > 0))',
+    'EVALUATE\nTOPN(1, FILTER(SELECTCOLUMNS(Dim_Tenant, "Logo_Base64", Dim_Tenant[Logo_Base64]), LEN([Logo_Base64]) > 0))'
+  ];
+  for (var i = 0; i < q.length; i++) {
+    try {
+      var r = await dax(q[i], m), row = r && r[0];
+      if (!row) continue;
+      var v = row.Logo_Base64 || row['Organisation_Info[Logo_Base64]'] || row['[Logo_Base64]'] || Object.keys(row).map(function (k) { return row[k]; }).filter(function (x) { return typeof x === 'string' && /^data:image\//.test(x); })[0];
+      var ok = cleanLogo(v);
+      if (ok) return ok;
+    } catch (e) { }
+  }
+  return '';
+}
+function cleanLogo(v) {
+  if (typeof v !== 'string') return '';
+  var mm = v.trim().match(/^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,([A-Za-z0-9+\/=\s]+)$/);
+  if (!mm) return '';
+  var b = mm[2].replace(/\s/g, ''), t = mm[1];
+  /* TenantSettings rows are often labelled jpeg while holding a PNG: trust the bytes */
+  if (/^iVBORw0/.test(b)) t = 'png'; else if (/^\/9j\//.test(b)) t = 'jpeg';
+  return 'data:image/' + t + ';base64,' + b;
 }
 async function connect(c) {
   var st = c.msal ? { ok: true } : tokenState(c.token);
@@ -1254,7 +1340,7 @@ function openConn() {
   $('cDisc').textContent = Auth.account ? 'Sign out' : 'Disconnect';
   $('cTokenBox').hidden = !!Auth.account;
   $('cMsalTop').hidden = !!Auth.account;
-  $('cTokenBox').open = !Auth.account;
+  $('cTokenBox').open = !Auth.account && (!msalReady() || !!$('cToken').value);
   if (!Auth.account && !$('cToken').value) { $('cWho').textContent = ''; resetSel('cWs', 'Sign in first'); resetSel('cDs', '—'); }
   if (!$('cToken').value) $('cToken').value = Cube.token || saved.token || '';
   $('cRemember').checked = !!saved.remember;
@@ -1365,9 +1451,8 @@ async function onConnect() {
   } catch (e) { $('cErr').textContent = e.message; }
   finally { go.disabled = false; go.textContent = 'Connect'; }
 }
-// Both always open the dialog, which offers Microsoft sign-in and the Power BI token side by side
-$('connBtn').onclick = openConn;
-$('demoBtn').onclick = function () { (Auth.account && $('demoStrip').classList.contains('err')) ? signIn() : openConn(); };
+$('connBtn').onclick = function () { (Cube.live || Auth.account || !msalReady()) ? openConn() : signIn(); };
+$('demoBtn').onclick = function () { (msalReady() && (!Auth.account || $('demoStrip').classList.contains('err'))) ? signIn() : openConn(); };
 $('cMsalGo').onclick = signIn;
 $('cCancel').onclick = closeConn;
 $('cGo').onclick = onConnect;
@@ -1391,7 +1476,7 @@ var LIVE_ASK = {
     var q = Q.woKpi(), r = (await dax(q))[0] || {}, p = r.pct || 0, left = (r.total || 0) - (r.completed || 0);
     return {
       html: '<p class="txt">' + (p >= .8 ? 'On track.' : 'Behind.') + ' You\'ve completed <span class="big">' + fmt(r.completed, 0) + '</span> of <b>' + fmt(r.total, 0) + '</b> scheduled work orders in the ' + periodText() + ': <b>' + pct(p) + '</b><span class="delta ' + (p >= .8 ? 'ok' : 'up') + '">goal 80%</span>. ' + fmt(left, 0) + ' are still open, ' + fmt(r.overdue, 0) + ' of them overdue, and ' + fmt(r.resched, 0) + ' were rescheduled.</p><div id="ansBars"></div>',
-      after: function () { liveBars($('ansBars'), [['Completed', r.completed, '#1a7a3c'], ['Not completed', left, '#9fb3c0'], ['Overdue', r.overdue, '#b3261e']]); },
+      after: function () { liveBars($('ansBars'), [['Completed', r.completed, '#2e7d32'], ['Not completed', left, '#bbbbbb'], ['Overdue', r.overdue, '#c41b23']]); },
       trace: { m: '[ASGT - Assignment Complete%]', dax: q, src: SRC('<b>Assignments</b> (Status_Id) × <b>Dim_Date_FromDate</b>') }
     };
   },
@@ -1410,7 +1495,7 @@ var LIVE_ASK = {
     if (!r.length) return { html: '<p class="txt">No downtime readings were captured in the ' + periodText() + '.</p>', trace: { m: '[Reading - Actual Downtime] by asset', dax: q, src: SRC('<b>TimeSeries_FieldMeasurements</b> × <b>Dim_AssignmentPoints</b>') } };
     return {
       html: '<p class="txt"><b>' + esc(r[0].Point_Name) + '</b> logged the most downtime: <span class="big">' + fmt(r[0].dt) + '</span> h in the ' + periodText() + (r[1] ? ', then ' + esc(r[1].Point_Name) + ' with ' + fmt(r[1].dt) + ' h' : '') + '.</p><div id="ansBars"></div>',
-      after: function () { liveBars($('ansBars'), r.map(function (x, i) { return [x.Point_Name, x.dt, i < 2 ? '#b3261e' : '#c9860a']; }), { suf: ' h' }); },
+      after: function () { liveBars($('ansBars'), r.map(function (x, i) { return [x.Point_Name, x.dt, i < 2 ? '#c41b23' : '#fca60e']; }), { suf: ' h' }); },
       trace: { m: '[Reading - Actual Downtime] by asset', dax: q, src: SRC('<b>TimeSeries_FieldMeasurements</b> × <b>Dim_AssignmentPoints</b>') }
     };
   },
@@ -1422,8 +1507,8 @@ var LIVE_ASK = {
     return {
       html: '<p class="txt"><span class="big">' + fmt(openHigh, 0) + '</span> high-priority exceptions are still open. ' + fmt(tot, 0) + ' exceptions were raised in the ' + periodText() + (tot ? ' and <b>' + pct(res / tot) + '</b> are resolved.' : '.') + '</p><div id="ansBars"></div>',
       after: function () {
-        var col = { 1: '#b3261e', 2: '#c9860a', 3: '#013d5a' };
-        liveBars($('ansBars'), r.filter(function (x) { return x.n && x.Name === 'Unresolved'; }).sort(function (a, b) { return a.Priority - b.Priority; }).map(function (x) { return [x.Exception_Level + ' · open', x.n, col[x.Priority]]; }).concat(res ? [['Resolved', res, '#1a7a3c']] : []));
+        var col = { 1: '#c41b23', 2: '#fca60e', 3: '#012435' };
+        liveBars($('ansBars'), r.filter(function (x) { return x.n && x.Name === 'Unresolved'; }).sort(function (a, b) { return a.Priority - b.Priority; }).map(function (x) { return [x.Exception_Level + ' · open', x.n, col[x.Priority]]; }).concat(res ? [['Resolved', res, '#2e7d32']] : []));
       },
       trace: { m: '[FM - Exception Count] by level and status', dax: q, src: SRC('<b>Assignment_FieldMeasurement_Exceptions</b> × <b>Dim_Exception_Level_FM</b> × <b>Dim_Is_Resolved</b>') }
     };
@@ -1618,7 +1703,7 @@ async function nlqAnswer(q) {
     var lab = rows.map(function (x) { return p.dim.id === 'month' ? new Date(x[key]).toLocaleDateString('en-AU', { month: 'short', year: '2-digit' }) : dshort(x[key]); });
     var peak = rows.reduce(function (a, x) { return (x.v || 0) > (a.v || 0) ? x : a; }, rows[0]);
     html = '<p class="txt">' + esc(label.charAt(0).toUpperCase() + label.slice(1)) + L(p, ' by ', ' por ') + esc(L(p, p.dim.en, p.dim.es)) + esc(nlqScope(p)) + '. ' + L(p, 'Peak: ', 'Pico: ') + '<b>' + nlqVal(p, peak.v) + '</b> (' + esc(lab[rows.indexOf(peak)]) + ').</p><div id="ansChart"></div>';
-    after = function () { lineChart($('ansChart'), lab, [{ name: label, color: '#013d5a', vals: rows.map(function (x) { return x.v; }) }]); };
+    after = function () { lineChart($('ansChart'), lab, [{ name: label, color: '#012435', vals: rows.map(function (x) { return x.v; }) }]); };
     return { html: und + html, after: after, trace: trace };
   }
   var name = function (x) { return x[key] == null ? L(p, '(none)', '(sin dato)') : String(x[key]); };
@@ -1626,13 +1711,13 @@ async function nlqAnswer(q) {
   if (p.ranked) html = '<p class="txt"><b>' + esc(name(first)) + '</b> ' + (p.order === 'ASC' ? L(p, 'has the fewest ', 'tiene la menor cantidad de ') : L(p, 'has the most ', 'tiene la mayor cantidad de ')) + (p.measure.pct ? L(p, '(by completion rate) ', '(por % de cumplimiento) ') : '') + esc(p.measure.pct ? '' : label) + esc(nlqScope(p)) + ': <span class="big">' + nlqVal(p, first.v) + '</span>' + (second ? L(p, ', then ', ', después ') + esc(name(second)) + ' (' + nlqVal(p, second.v) + ')' : '') + '.</p>';
   else html = '<p class="txt">' + esc(label.charAt(0).toUpperCase() + label.slice(1)) + L(p, ' by ', ' por ') + esc(L(p, p.dim.en, p.dim.es)) + esc(nlqScope(p)) + (rows.length >= (p.n || 15) ? L(p, ' (top ' + rows.length + ')', ' (primeros ' + rows.length + ')') : '') + '.</p>';
   html += '<div id="ansBars"></div>';
-  after = function () { liveBars($('ansBars'), rows.map(function (x, i) { return [name(x), x.v, i === 0 && p.ranked ? '#b3261e' : PALETTE[0]]; }), { pct: p.measure.pct, max: p.measure.pct ? 1 : undefined, suf: p.measure.unit ? ' ' + p.measure.unit : '' }); };
+  after = function () { liveBars($('ansBars'), rows.map(function (x, i) { return [name(x), x.v, i === 0 && p.ranked ? '#c41b23' : PALETTE[0]]; }), { pct: p.measure.pct, max: p.measure.pct ? 1 : undefined, suf: p.measure.unit ? ' ' + p.measure.unit : '' }); };
   return { html: und + html, after: after, trace: trace };
 }
 
 function traceBox(m, d, src) {
   return '<details class="trace"><summary><span class="tag">TRACEABLE</span> See how this was calculated ▾</summary><div class="tbody">' +
-    '<div style="font-size:12px;color:var(--muted);margin-bottom:2px">Semantic-layer measure:</div><code style="font-size:13px;font-weight:700;color:var(--navy2)">' + esc(m) + '</code>' +
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:2px">Semantic-layer measure:</div><code style="font-size:13px;font-weight:500;color:var(--navy2)">' + esc(m) + '</code>' +
     '<pre>' + esc(d) + '</pre><div class="src">Source: ' + src + '</div></div></details>';
 }
 async function liveAsk(k, question) {
@@ -1946,11 +2031,11 @@ function aiRender(out, pre) {
     html = '<div style="margin:2px 0 4px"><span class="big">' + aiFmt(rows[0][vKey], unit) + '</span>' + (extra ? ' <span style="color:var(--muted);font-size:13px">' + extra + '</span>' : '') + '</div>';
   } else if (labels.length === 1 && vKey && (s.shape === 'trend' || /^\d{4}-\d\d-\d\dT/.test(String(rows[0][labels[0]])))) {
     html = '<div id="' + pre + 'Chart"></div>';
-    after = function () { lineChart($(pre + 'Chart'), rows.map(function (x) { return /^\d{4}-\d\d-\d\dT/.test(String(x[labels[0]])) ? dshort(x[labels[0]]) : String(x[labels[0]]); }), [{ name: s.understood || 'value', color: '#013d5a', vals: rows.map(function (x) { return x[vKey]; }) }]); };
+    after = function () { lineChart($(pre + 'Chart'), rows.map(function (x) { return /^\d{4}-\d\d-\d\dT/.test(String(x[labels[0]])) ? dshort(x[labels[0]]) : String(x[labels[0]]); }), [{ name: s.understood || 'value', color: '#012435', vals: rows.map(function (x) { return x[vKey]; }) }]); };
   } else if (labels.length >= 1 && vKey && keys.length <= labels.length + 1 && rows.length <= 25) {
     html = '<div id="' + pre + 'Bars"></div>';
     after = function () {
-      liveBars($(pre + 'Bars'), rows.map(function (x, i) { return [labels.map(function (l) { return x[l] == null ? '(none)' : String(x[l]); }).join(' · '), x[vKey], i === 0 && s.shape === 'ranking' ? '#b3261e' : PALETTE[0]]; }),
+      liveBars($(pre + 'Bars'), rows.map(function (x, i) { return [labels.map(function (l) { return x[l] == null ? '(none)' : String(x[l]); }).join(' · '), x[vKey], i === 0 && s.shape === 'ranking' ? '#c41b23' : PALETTE[0]]; }),
         { pct: unit === 'percent', max: unit === 'percent' ? 1 : undefined, suf: unit === 'hours' ? ' h' : '' });
     };
   } else {
@@ -1972,7 +2057,7 @@ function aiStatus() {
   var c = aiLoad(), el = $('aiState'); if (!el) return;
   $('aiToggle').checked = c.on;
   el.textContent = c.on ? (c.apiKey ? (c.provider === 'claude' ? 'Claude' : 'Gemini') + ' · ' + c.model : 'add an API key to use it') : 'off: answers use the built-in rules';
-  el.style.color = c.on && !c.apiKey ? '#ffd07a' : '';
+  el.style.color = c.on && !c.apiKey ? '#ffd073' : '';
 }
 function openAiSettings() {
   var c = aiLoad();
@@ -2070,24 +2155,24 @@ function hTrend(title, vals, labels, partial, color, unit) {
   var g = area + '<path d="' + solid.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + y(p[1]).toFixed(1); }).join(' ') + '" fill="none" stroke="' + color + '" stroke-width="2"/>';
   if (partial && solid.length) { var pv = solid[solid.length - 1]; g += '<path d="M' + pv[0].toFixed(1) + ' ' + y(pv[1]).toFixed(1) + ' L' + last[0].toFixed(1) + ' ' + y(last[1]).toFixed(1) + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-dasharray="4 3"/>'; }
   g += '<circle cx="' + last[0].toFixed(1) + '" cy="' + y(last[1]).toFixed(1) + '" r="4" fill="#fff" stroke="' + color + '" stroke-width="2"/>';
-  g += '<text x="' + (last[0] + 8).toFixed(1) + '" y="' + (y(last[1]) + 4).toFixed(1) + '" font-size="12" font-weight="700" fill="#0f2233">' + esc(fmt(last[1], unit === 'pp2' ? 2 : 0)) + '%</text>';
-  g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (Hh - B) + '" y2="' + (Hh - B) + '" stroke="#d3dee5"/>';
-  g += '<text x="' + L + '" y="' + (Hh - 6) + '" font-size="10" fill="#6e8090">' + esc(labels[0].toUpperCase()) + '</text><text x="' + (W - R) + '" y="' + (Hh - 6) + '" font-size="10" text-anchor="end" fill="#6e8090">' + esc(labels[labels.length - 1].toUpperCase()) + (partial ? '*' : '') + '</text>';
+  g += '<text x="' + (last[0] + 8).toFixed(1) + '" y="' + (y(last[1]) + 4).toFixed(1) + '" font-size="12" font-weight="500" fill="#212121">' + esc(fmt(last[1], unit === 'pp2' ? 2 : 0)) + '%</text>';
+  g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (Hh - B) + '" y2="' + (Hh - B) + '" stroke="#e2e2e2"/>';
+  g += '<text x="' + L + '" y="' + (Hh - 6) + '" font-size="10" fill="#666666">' + esc(labels[0].toUpperCase()) + '</text><text x="' + (W - R) + '" y="' + (Hh - 6) + '" font-size="10" text-anchor="end" fill="#666666">' + esc(labels[labels.length - 1].toUpperCase()) + (partial ? '*' : '') + '</text>';
   return '<div class="htrend"><h4>' + esc(title) + '</h4><div class="hsub">Per cent · 4 months' + (partial ? ', last partial' : '') + '</div><svg viewBox="0 0 ' + W + ' ' + Hh + '" role="img" aria-label="' + esc(title) + ' trend">' + g + '</svg></div>';
 }
 function hDumbbell(rows) {
   var W = 640, rowH = 34, top = 24, L = 150, Rw = 520, Hh = top + rows.length * rowH + 30;
   var sx = function (v) { return L + Math.max(0, Math.min(100, v)) / 100 * (Rw - L); };
-  var g = '<text x="' + (W - 6) + '" y="14" font-size="10" text-anchor="end" fill="#6e8090">GAP</text>';
-  [0, 25, 50, 75, 100].forEach(function (t) { g += '<line x1="' + sx(t) + '" x2="' + sx(t) + '" y1="' + (top - 6) + '" y2="' + (Hh - 26) + '" stroke="#e7edf1"/><text x="' + sx(t) + '" y="' + (Hh - 10) + '" font-size="10" text-anchor="middle" fill="#6e8090">' + t + '%</text>'; });
+  var g = '<text x="' + (W - 6) + '" y="14" font-size="10" text-anchor="end" fill="#666666">GAP</text>';
+  [0, 25, 50, 75, 100].forEach(function (t) { g += '<line x1="' + sx(t) + '" x2="' + sx(t) + '" y1="' + (top - 6) + '" y2="' + (Hh - 26) + '" stroke="#e2e2e2"/><text x="' + sx(t) + '" y="' + (Hh - 10) + '" font-size="10" text-anchor="middle" fill="#666666">' + t + '%</text>'; });
   rows.forEach(function (r, i) {
-    var y = top + i * rowH + rowH / 2, gap = r.comp - r.score, gc = gap >= 35 ? '#b3261e' : gap >= 25 ? '#c9860a' : '#1a7a3c';
-    g += '<text x="0" y="' + (y + 4) + '" font-size="12" font-weight="700" fill="#0f2233">' + esc(r.name.length > 22 ? r.name.slice(0, 21) + '…' : r.name) + '<title>' + esc(r.name) + '</title></text>';
+    var y = top + i * rowH + rowH / 2, gap = r.comp - r.score, gc = gap >= 35 ? '#c41b23' : gap >= 25 ? '#fca60e' : '#2e7d32';
+    g += '<text x="0" y="' + (y + 4) + '" font-size="12" font-weight="500" fill="#212121">' + esc(r.name.length > 22 ? r.name.slice(0, 21) + '…' : r.name) + '<title>' + esc(r.name) + '</title></text>';
     g += '<line x1="' + sx(r.score) + '" x2="' + sx(r.comp) + '" y1="' + y + '" y2="' + y + '" stroke="' + gc + '" stroke-width="3" opacity=".55"/>';
-    g += '<circle cx="' + sx(r.score) + '" cy="' + y + '" r="5.5" fill="#128295"/><circle cx="' + sx(r.comp) + '" cy="' + y + '" r="6" fill="#fff" stroke="#013d5a" stroke-width="2.4"/>';
-    g += '<text x="' + (sx(r.score) - 10) + '" y="' + (y + 4) + '" font-size="11" text-anchor="end" font-weight="700" fill="#128295">' + Math.round(r.score) + '%</text>';
-    g += '<text x="' + (sx(r.comp) + 10) + '" y="' + (y + 4) + '" font-size="11" font-weight="700" fill="#013d5a">' + Math.round(r.comp) + '%</text>';
-    g += '<text x="' + (W - 6) + '" y="' + (y + 4) + '" font-size="12" text-anchor="end" font-weight="700" fill="' + gc + '">' + Math.round(gap) + ' pp</text>';
+    g += '<circle cx="' + sx(r.score) + '" cy="' + y + '" r="5.5" fill="#0d6cb3"/><circle cx="' + sx(r.comp) + '" cy="' + y + '" r="6" fill="#fff" stroke="#012435" stroke-width="2.4"/>';
+    g += '<text x="' + (sx(r.score) - 10) + '" y="' + (y + 4) + '" font-size="11" text-anchor="end" font-weight="500" fill="#0d6cb3">' + Math.round(r.score) + '%</text>';
+    g += '<text x="' + (sx(r.comp) + 10) + '" y="' + (y + 4) + '" font-size="11" font-weight="500" fill="#012435">' + Math.round(r.comp) + '%</text>';
+    g += '<text x="' + (W - 6) + '" y="' + (y + 4) + '" font-size="12" text-anchor="end" font-weight="500" fill="' + obzInk(gc) + '">' + Math.round(gap) + ' pp</text>';
   });
   return '<div class="tscroll"><svg viewBox="0 0 ' + W + ' ' + Hh + '" style="min-width:520px;width:100%" role="img" aria-label="Marked complete versus fields captured">' + g + '</svg></div>';
 }
@@ -2097,11 +2182,11 @@ function hPairBars(rows) {
     return '<div class="hpair"><div class="hn"><b title="' + esc(r.name) + '">' + esc(r.name) + '</b>' + (r.sub ? '<span>' + esc(r.sub) + '</span>' : '') + '</div>' +
       '<div class="ht"><div class="hc" style="width:' + (r.completed / max * 100).toFixed(1) + '%"></div><div class="he" style="width:' + (r.empty / max * 100).toFixed(1) + '%"></div></div>' +
       '<div class="hv"><b>' + fmt(r.empty, 0) + '</b> empty of ' + fmt(r.completed, 0) + (r.score != null ? '<span>score ' + fmt(r.score * 100, 0) + '%</span>' : '') + '</div></div>';
-  }).join('') + '</div><div class="legend" style="margin-top:8px"><span><i style="background:#c7d3da"></i>Completed</span><span><i style="background:#b3261e"></i>Empty (0% of fields captured)</span></div>';
+  }).join('') + '</div><div class="legend" style="margin-top:8px"><span><i style="background:#bbbbbb"></i>Completed</span><span><i style="background:#c41b23"></i>Empty (0% of fields captured)</span></div>';
 }
 function hDelta(d, du, kind) {
   if (d == null || isNaN(d)) return '<span class="hd">—</span>';
-  var col = kind === 'neutral' ? '#4a6070' : d >= 0 ? '#1a7a3c' : '#b3261e';
+  var col = kind === 'neutral' ? '#666666' : d >= 0 ? '#2e7d32' : '#c41b23';
   return '<span class="hd" style="color:' + col + '">' + (d >= 0 ? '▲ +' : '▼ ') + fmt(d, du === 'pp2' ? 2 : 1) + ' pp</span>';
 }
 
@@ -2123,7 +2208,7 @@ function renderHealth(D, opts) {
     ['Exception capture', rc.exc, rc.exc - rp.exc, 'pp', serie('exc'), fmt(cur.excwo, 0) + ' of ' + fmt(cur.completed, 0) + ' completed WOs raised an exception · ' + fmt(cur.exc, 0) + ' exceptions', 'neutral']
   ];
   h += '<div class="grid g4">' + tiles.map(function (t, n) {
-    return '<div class="card hkpi' + (t[6] === 'focus' ? ' focus' : '') + '"><div class="k">' + t[0] + '<span>KPI ' + (n + 1) + '</span></div><div class="hrow"><div class="v">' + (t[1] == null ? '—' : fmt(t[1], t[3] === 'pp2' ? 2 : 1)) + '<small>%</small></div>' + hSpark(t[4], partial, n === 1 ? '#128295' : '#013d5a') + '</div>' +
+    return '<div class="card hkpi' + (t[6] === 'focus' ? ' focus' : '') + '"><div class="k">' + t[0] + '<span>KPI ' + (n + 1) + '</span></div><div class="hrow"><div class="v">' + (t[1] == null ? '—' : fmt(t[1], t[3] === 'pp2' ? 2 : 1)) + '<small>%</small></div>' + hSpark(t[4], partial, n === 1 ? '#0d6cb3' : '#012435') + '</div>' +
       '<div class="hdrow">' + (prev ? hDelta(t[2], t[3], t[6]) + ' <span class="hvs">vs ' + esc(ms[i - 1].long) + (partial && i === ms.length - 1 ? ' · month still running' : '') + '</span>' : '') + '</div><div class="foot">' + t[5] + '</div></div>';
   }).join('') + '</div>';
   var groups = D.groups ? D.groups.rows.map(hNum).filter(function (r) { return r.completed > 0; }) : [];
@@ -2138,7 +2223,7 @@ function renderHealth(D, opts) {
     var dl = groups.filter(function (r) { return r.score != null && r.assigned; }).slice(0, 8).map(function (r) { var x = hRates(r); return { name: r.name, comp: x.comp, score: x.score }; });
     var wide = dl.slice().sort(function (a, b) { return (b.comp - b.score) - (a.comp - a.score); });
     h += '<div class="grid hg2" style="margin-top:16px"><div class="card"><div class="hhead"><h3>What was claimed vs what was captured</h3><span>By ' + gname + ' · ' + esc(mon) + '</span></div><div class="sub">Each line is the distance between the share of tasks closed as complete and the share of required fields actually filled in on those tasks.</div>' +
-      '<div class="legend" style="margin:6px 0 4px"><span><i style="background:#fff;border:2px solid #013d5a;border-radius:50%"></i>Marked complete</span><span><i style="background:#128295;border-radius:50%"></i>Fields captured</span></div>' +
+      '<div class="legend" style="margin:6px 0 4px"><span><i style="background:#fff;border:2px solid #012435;border-radius:50%"></i>Marked complete</span><span><i style="background:#0d6cb3;border-radius:50%"></i>Fields captured</span></div>' +
       (dl.length ? hDumbbell(dl) + (wide.length > 1 ? '<div class="hnote"><b>' + esc(wide[0].name) + '</b> carries the widest gap at <b>' + Math.round(wide[0].comp - wide[0].score) + ' pp</b>; <b>' + esc(wide[wide.length - 1].name) + '</b> the narrowest at ' + Math.round(wide[wide.length - 1].comp - wide[wide.length - 1].score) + ' pp.</div>' : '') : '<div class="empty">Nothing completed in this month.</div>') + q('groups') + '</div>';
     var eg = groups.filter(function (r) { return r.empty; }).sort(function (a, b) { return b.empty - a.empty; }).slice(0, 8);
     var emax = Math.max.apply(null, eg.map(function (r) { return r.empty; }).concat([1]));
@@ -2149,21 +2234,21 @@ function renderHealth(D, opts) {
   var first = hRates(byM[0]), lastClosed = hRates(byM[partial ? byM.length - 2 : byM.length - 1]);
   h += '<div class="card" style="margin-top:16px"><div class="hhead"><h3>The ' + (partial ? 'last three months and this one' : 'four months') + '</h3><span>' + esc(ms[0].label) + ' – ' + esc(ms[ms.length - 1].label) + '</span></div>' +
     '<div class="sub" style="max-width:640px">Across ' + esc(ms[0].label) + '–' + esc(ms[partial ? ms.length - 2 : ms.length - 1].label) + ' the field capture score moved from <b>' + fmt(first.score, 1) + '%</b> to <b>' + fmt(lastClosed.score, 1) + '%</b> and empty completions went from <b>' + fmt(first.emptyPct, 1) + '%</b> to <b>' + fmt(lastClosed.emptyPct, 1) + '%</b> of completed work.' + (partial ? ' The last point is dashed and hollow because ' + esc(ms[ms.length - 1].label) + ' is still running.' : '') + '</div>' +
-    '<div class="grid g4" style="margin-top:10px">' + hTrend('Completion rate', serie('comp'), ms.map(function (m) { return m.label; }), partial, '#013d5a') + hTrend('Field capture score', serie('score'), ms.map(function (m) { return m.label; }), partial, '#128295') +
-    hTrend('Feedback capture', serie('fb'), ms.map(function (m) { return m.label; }), partial, '#7a5c99', 'pp2') + hTrend('Exception capture', serie('exc'), ms.map(function (m) { return m.label; }), partial, '#c9860a') + '</div>' + q('monthly') + '</div>';
+    '<div class="grid g4" style="margin-top:10px">' + hTrend('Completion rate', serie('comp'), ms.map(function (m) { return m.label; }), partial, '#012435') + hTrend('Field capture score', serie('score'), ms.map(function (m) { return m.label; }), partial, '#0d6cb3') +
+    hTrend('Feedback capture', serie('fb'), ms.map(function (m) { return m.label; }), partial, '#7a0099', 'pp2') + hTrend('Exception capture', serie('exc'), ms.map(function (m) { return m.label; }), partial, '#fca60e') + '</div>' + q('monthly') + '</div>';
   // scorecard table
   if (groups.length) {
     h += '<div class="card" style="margin-top:16px"><div class="hhead"><h3>Scorecard by ' + gname + '</h3><span>' + esc(mon) + '</span></div><div class="tscroll"><table class="dt"><tr><th>' + gname.charAt(0).toUpperCase() + gname.slice(1) + '</th><th>Assigned</th><th>Completion</th><th>Field capture score</th><th>Empty</th><th>Feedback</th><th>Exceptions</th></tr>' +
-      groups.slice(0, 15).map(function (r) { var x = hRates(r); return '<tr><td style="font-weight:700">' + esc(r.name) + '</td><td>' + fmt(r.assigned, 0) + '</td><td>' + fmt(x.comp, 1) + '%</td><td><span class="badge ' + (x.score >= 75 ? 'b-ok' : x.score >= 50 ? 'b-warn' : 'b-crit') + '">' + fmt(x.score, 1) + '%</span></td><td>' + fmt(r.empty, 0) + ' <span style="color:var(--muted)">(' + fmt(x.emptyPct, 0) + '%)</span></td><td>' + fmt(x.fb, 2) + '%</td><td>' + fmt(x.exc, 1) + '%</td></tr>'; }).join('') + '</table></div></div>';
+      groups.slice(0, 15).map(function (r) { var x = hRates(r); return '<tr><td style="font-weight:500">' + esc(r.name) + '</td><td>' + fmt(r.assigned, 0) + '</td><td>' + fmt(x.comp, 1) + '%</td><td><span class="badge ' + (x.score >= 75 ? 'b-ok' : x.score >= 50 ? 'b-warn' : 'b-crit') + '">' + fmt(x.score, 1) + '%</span></td><td>' + fmt(r.empty, 0) + ' <span style="color:var(--muted)">(' + fmt(x.emptyPct, 0) + '%)</span></td><td>' + fmt(x.fb, 2) + '%</td><td>' + fmt(x.exc, 1) + '%</td></tr>'; }).join('') + '</table></div></div>';
   }
   // exceptions raised on this month's work (moved here from Work Summary)
   if (D.exc || D.errors.exc) {
     var xr = D.exc || [], xo = {}, xres = 0, xtot = 0;
     xr.forEach(function (r) { var n = Number(r.n) || 0; xtot += n; if (r.Name === 'Resolved') xres += n; else xo[r.Exception_Level || 'No level'] = { n: ((xo[r.Exception_Level || 'No level'] || {}).n || 0) + n, p: r.Priority }; });
     var xl = Object.keys(xo).sort(function (a, b) { return (xo[a].p || 9) - (xo[b].p || 9); });
-    var xcol = { 1: '#b3261e', 2: '#c9860a', 3: '#013d5a' };
+    var xcol = { 1: '#c41b23', 2: '#fca60e', 3: '#012435' };
     h += '<div class="card" style="margin-top:16px"><div class="hhead"><h3>Exceptions raised on this month\'s work</h3><span>' + esc(mon) + '</span></div><div class="sub">' + (xtot ? fmt(xtot, 0) + ' exceptions raised; <b>' + fmt(xres / xtot * 100, 0) + '%</b> are resolved. Open ones by level:' : 'No exceptions were raised on work scheduled this month.') + '</div>' +
-      (D.exc ? (xtot ? '<div class="bars" style="margin-top:10px">' + xl.map(function (k) { return '<div class="bar"><span class="nm">' + esc(k) + ' · open</span><div class="track"><div class="fill" style="width:' + (xo[k].n / xtot * 100).toFixed(1) + '%;background:' + (xcol[xo[k].p] || '#013d5a') + '"></div></div><span class="val">' + fmt(xo[k].n, 0) + '</span></div>'; }).join('') + '<div class="bar"><span class="nm">Resolved</span><div class="track"><div class="fill" style="width:' + (xres / xtot * 100).toFixed(1) + '%;background:#1a7a3c"></div></div><span class="val">' + fmt(xres, 0) + '</span></div></div><div class="hnote">Open defects across all dates, and how old they are, are on the Safety page.</div>' : '') : '<div class="err">' + esc(D.errors.exc) + '</div>') + q('exc') + '</div>';
+      (D.exc ? (xtot ? '<div class="bars" style="margin-top:10px">' + xl.map(function (k) { return '<div class="bar"><span class="nm">' + esc(k) + ' · open</span><div class="track"><div class="fill" style="width:' + (xo[k].n / xtot * 100).toFixed(1) + '%;background:' + (xcol[xo[k].p] || '#012435') + '"></div></div><span class="val">' + fmt(xo[k].n, 0) + '</span></div>'; }).join('') + '<div class="bar"><span class="nm">Resolved</span><div class="track"><div class="fill" style="width:' + (xres / xtot * 100).toFixed(1) + '%;background:#2e7d32"></div></div><span class="val">' + fmt(xres, 0) + '</span></div></div><div class="hnote">Open defects across all dates, and how old they are, are on the Safety page.</div>' : '') : '<div class="err">' + esc(D.errors.exc) + '</div>') + q('exc') + '</div>';
   }
   // teams with the most empty work
   var teams = D.teams ? D.teams.map(hNum).filter(function (r) { return r.completed >= 20 && r.empty; }).sort(function (a, b) { return b.empty - a.empty; }).slice(0, 6) : [];
@@ -2176,7 +2261,7 @@ function renderHealth(D, opts) {
   if (D.across && D.across.rows.length) {
     var ten = {}; D.across.rows.forEach(function (r) { (ten[r.Tenant_Name] = ten[r.Tenant_Name] || {})[String(r.Month_Start).slice(0, 7)] = r; });
     h += '<div class="card" style="margin-top:16px"><div class="hhead"><h3>The same template across every tenant</h3><span>' + esc(D.across.name) + '</span></div><div class="sub">Field capture score on the busiest template, tenant by tenant. When one template carries most of the volume, the site score tracks it, and the difference between sites is how the template is used, not the template.</div><div class="tscroll"><table class="dt"><tr><th>Tenant</th>' + ms.map(function (m, k) { return '<th>' + esc(m.label) + (partial && k === ms.length - 1 ? '*' : '') + '</th>'; }).join('') + '</tr>' +
-      Object.keys(ten).sort().map(function (t) { return '<tr><td style="font-weight:700">' + esc(t) + '</td>' + ms.map(function (m) { var r = ten[t][m.y + '-' + String(m.m).padStart(2, '0')]; return '<td>' + (r && r.score != null ? fmt(r.score * 100, 0) + '% <span style="color:var(--muted)">· ' + fmt(r.completed, 0) + '</span>' : '—') + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div>' + q('across') + '</div>';
+      Object.keys(ten).sort().map(function (t) { return '<tr><td style="font-weight:500">' + esc(t) + '</td>' + ms.map(function (m) { var r = ten[t][m.y + '-' + String(m.m).padStart(2, '0')]; return '<td>' + (r && r.score != null ? fmt(r.score * 100, 0) + '% <span style="color:var(--muted)">· ' + fmt(r.completed, 0) + '</span>' : '—') + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div>' + q('across') + '</div>';
   }
   // definitions
   h += '<details class="card hdefs" style="margin-top:16px"><summary><b>Where do these numbers come from?</b> Definitions and caveats ▾</summary><div class="hdefbody">' +
@@ -2369,14 +2454,14 @@ function renderSafety(R, Qs, S) {
     var by = AGE.map(function () { return { 1: 0, 2: 0, 3: 0 }; }), mx = 1;
     R.ageing.rows.forEach(function (r) { var b = by[(r.b || 5) - 1]; b[r.p] = (b[r.p] || 0) + r.n; });
     by.forEach(function (b) { mx = Math.max(mx, (b[1] || 0) + (b[2] || 0) + (b[3] || 0)); });
-    age = '<div class="sfage">' + by.map(function (b, i) { var hi = b[1] || 0, md = (b[2] || 0) + (b[3] || 0); return '<div class="sfa"><b>' + AGE[i] + '</b><div class="sft"><div style="width:' + (hi / mx * 100).toFixed(1) + '%;background:#b3261e"></div><div style="width:' + (md / mx * 100).toFixed(1) + '%;background:#c9860a"></div></div><span><b>' + fmt(hi, 0) + '</b> high · ' + fmt(md, 0) + ' other</span></div>'; }).join('') + '</div><div class="legend" style="margin-top:8px"><span><i style="background:#b3261e"></i>High priority</span><span><i style="background:#c9860a"></i>Medium and low</span></div>';
+    age = '<div class="sfage">' + by.map(function (b, i) { var hi = b[1] || 0, md = (b[2] || 0) + (b[3] || 0); return '<div class="sfa"><b>' + AGE[i] + '</b><div class="sft"><div style="width:' + (hi / mx * 100).toFixed(1) + '%;background:#c41b23"></div><div style="width:' + (md / mx * 100).toFixed(1) + '%;background:#fca60e"></div></div><span><b>' + fmt(hi, 0) + '</b> high · ' + fmt(md, 0) + ' other</span></div>'; }).join('') + '</div><div class="legend" style="margin-top:8px"><span><i style="background:#c41b23"></i>High priority</span><span><i style="background:#fca60e"></i>Medium and low</span></div>';
   } else age = sErr(R.ageing);
-  var assets = R.assets.rows ? (R.assets.rows.length ? '<div class="tscroll"><table class="dt"><tr><th>Asset</th><th>Open high</th><th>All open</th><th>Oldest open high</th></tr>' + R.assets.rows.map(function (r) { var d = r.oldest ? Math.floor((Date.now() - new Date(r.oldest)) / 864e5) : null; return '<tr><td style="font-weight:700">' + esc(r.Point_Name) + '</td><td><span class="badge b-crit">' + fmt(r.high, 0) + '</span></td><td>' + fmt(r.open, 0) + '</td><td>' + (d == null ? '—' : fmt(d, 0) + ' days') + '</td></tr>'; }).join('') + '</table></div>' : '<div class="empty">No open high-priority defects.</div>') : sErr(R.assets);
+  var assets = R.assets.rows ? (R.assets.rows.length ? '<div class="tscroll"><table class="dt"><tr><th>Asset</th><th>Open high</th><th>All open</th><th>Oldest open high</th></tr>' + R.assets.rows.map(function (r) { var d = r.oldest ? Math.floor((Date.now() - new Date(r.oldest)) / 864e5) : null; return '<tr><td style="font-weight:500">' + esc(r.Point_Name) + '</td><td><span class="badge b-crit">' + fmt(r.high, 0) + '</span></td><td>' + fmt(r.open, 0) + '</td><td>' + (d == null ? '—' : fmt(d, 0) + ' days') + '</td></tr>'; }).join('') + '</table></div>' : '<div class="empty">No open high-priority defects.</div>') : sErr(R.assets);
   h += '<div class="grid hg2" style="margin-top:16px"><div class="card"><div class="hhead"><h3>Open defects by age</h3><span>All open, any date</span></div><div class="sub">Unresolved exceptions, by how long ago they were raised (or created, when no raised date was recorded).</div>' + age + qbox(Qs.ageing) + '</div>' +
     '<div class="card"><div class="hhead"><h3>Assets with the most open high-priority defects</h3><span>All open</span></div>' + assets + qbox(Qs.assets) + '</div></div>';
   // safety controls by template and by team
   if (S.length) {
-    var tp = R.byTemplate.rows ? (R.byTemplate.rows.length ? '<div class="tscroll"><table class="dt"><tr><th>Template</th><th>Scheduled</th><th>Completed</th><th>Field capture</th><th>Empty</th></tr>' + R.byTemplate.rows.map(function (r) { var c = r.assigned ? r.completed / r.assigned * 100 : null, s = r.score == null ? null : r.score * 100; return '<tr><td style="font-weight:700">' + esc(r.Name) + '</td><td>' + fmt(r.assigned, 0) + '</td><td>' + fmt(c, 1) + '%</td><td>' + (s == null ? '—' : '<span class="badge ' + (s >= 75 ? 'b-ok' : s >= 50 ? 'b-warn' : 'b-crit') + '">' + fmt(s, 0) + '%</span>') + '</td><td>' + fmt(r.empty || 0, 0) + (r.completed ? ' <span style="color:var(--muted)">(' + fmt((r.empty || 0) / r.completed * 100, 0) + '%)</span>' : '') + '</td></tr>'; }).join('') + '</table></div>' : '<div class="empty">None of the chosen templates were scheduled in the ' + esc(per) + '.</div>') : sErr(R.byTemplate);
+    var tp = R.byTemplate.rows ? (R.byTemplate.rows.length ? '<div class="tscroll"><table class="dt"><tr><th>Template</th><th>Scheduled</th><th>Completed</th><th>Field capture</th><th>Empty</th></tr>' + R.byTemplate.rows.map(function (r) { var c = r.assigned ? r.completed / r.assigned * 100 : null, s = r.score == null ? null : r.score * 100; return '<tr><td style="font-weight:500">' + esc(r.Name) + '</td><td>' + fmt(r.assigned, 0) + '</td><td>' + fmt(c, 1) + '%</td><td>' + (s == null ? '—' : '<span class="badge ' + (s >= 75 ? 'b-ok' : s >= 50 ? 'b-warn' : 'b-crit') + '">' + fmt(s, 0) + '%</span>') + '</td><td>' + fmt(r.empty || 0, 0) + (r.completed ? ' <span style="color:var(--muted)">(' + fmt((r.empty || 0) / r.completed * 100, 0) + '%)</span>' : '') + '</td></tr>'; }).join('') + '</table></div>' : '<div class="empty">None of the chosen templates were scheduled in the ' + esc(per) + '.</div>') : sErr(R.byTemplate);
     var tm = R.byTeam.rows ? (R.byTeam.rows.filter(function (r) { return r.completed; }).length ? hPairBars(R.byTeam.rows.filter(function (r) { return r.completed; }).sort(function (a, b) { return (b.empty || 0) - (a.empty || 0); }).slice(0, 8).map(function (r) { return { name: r.Description || r.Name || '(no team)', sub: r.Description ? r.Name : '', completed: r.completed, empty: r.empty || 0, score: r.score }; })) : '<div class="empty">No safety controls completed in the ' + esc(per) + '.</div>') : sErr(R.byTeam);
     h += '<div class="grid hg2" style="margin-top:16px"><div class="card"><div class="hhead"><h3>Safety controls by template</h3><span>' + esc(per) + '</span></div><div class="sub">Was the control done, and was anything recorded on it?</div>' + tp + qbox(Qs.byTemplate) + '</div>' +
       '<div class="card"><div class="hhead"><h3>Which teams sign off empty safety controls</h3><span>' + esc(per) + '</span></div>' + tm + qbox(Qs.byTeam) + '</div></div>';
@@ -2391,7 +2476,7 @@ function renderSafety(R, Qs, S) {
     '<p><b>Age</b> of an open defect counts from Raised_At, or from Created_Date when Raised_At is empty (most open defects have no Raised_At).</p><p><b>Days to resolve</b> is Resolved_At minus Raised_At, averaged over defects already resolved.</p>' +
     '<p><b>Safety controls</b> are the templates chosen on this page. Completed = Status_Id 3 or 7 (Completed, Finalised), the same definition as the rest of the portal. Empty = completed with 0% of required fields captured.</p>' +
     '<p><b>Row-level security</b> applies: everything is counted with your own Power BI permissions.</p></div></details>';
-  setTimeout(function () { if (R.declined.rows && R.declined.rows.length && $('sfDecl')) liveBars($('sfDecl'), R.declined.rows.map(function (r) { return [r.Declined_Reason || '(no reason)', r.n, '#c9860a']; })); }, 0);
+  setTimeout(function () { if (R.declined.rows && R.declined.rows.length && $('sfDecl')) liveBars($('sfDecl'), R.declined.rows.map(function (r) { return [r.Declined_Reason || '(no reason)', r.n, '#fca60e']; })); }, 0);
   return h;
 }
 
@@ -2532,7 +2617,7 @@ function saveBarHtml() {
 function wireSaveBar() {
   var b = $('saveView'); if (!b || !LAST_ANS) return;
   b.onclick = function () {
-    $('saveBar').innerHTML = '<label for="saveName" class="flab" style="font-weight:700;color:var(--text)">Name</label><input type="text" id="saveName" class="sfsearch" style="margin:0;flex:1;min-width:200px" maxlength="80" value="' + esc(LAST_ANS.question.replace(/[?¿]/g, '').slice(0, 80)) + '"><button type="button" class="sfbtn" id="saveOk">Save</button><button type="button" class="sfbtn ghost" id="saveNo">Cancel</button>';
+    $('saveBar').innerHTML = '<label for="saveName" class="flab" style="font-weight:500;color:var(--text)">Name</label><input type="text" id="saveName" class="sfsearch" style="margin:0;flex:1;min-width:200px" maxlength="80" value="' + esc(LAST_ANS.question.replace(/[?¿]/g, '').slice(0, 80)) + '"><button type="button" class="sfbtn" id="saveOk">Save</button><button type="button" class="sfbtn ghost" id="saveNo">Cancel</button>';
     $('saveName').focus(); $('saveName').select();
     $('saveNo').onclick = function () { $('saveBar').outerHTML = saveBarHtml(); wireSaveBar(); };
     var go = function () {
@@ -2542,7 +2627,7 @@ function wireSaveBar() {
       list.unshift(v);
       if (!viewsSave(list)) { $('saveBar').innerHTML = '<span class="err">This browser wouldn\'t store the view (storage full or blocked).</span>'; return; }
       renderViewsNav();
-      $('saveBar').innerHTML = '<span style="color:var(--green);font-weight:700">✓ Saved as "' + esc(name) + '".</span> <button type="button" class="sfbtn ghost" onclick="openView(\'' + v.id + '\')">Open it</button>';
+      $('saveBar').innerHTML = '<span style="color:var(--green);font-weight:500">✓ Saved as "' + esc(name) + '".</span> <button type="button" class="sfbtn ghost" onclick="openView(\'' + v.id + '\')">Open it</button>';
     };
     $('saveOk').onclick = go;
     $('saveName').onkeydown = function (e) { if (e.key === 'Enter') go(); if (e.key === 'Escape') $('saveNo').onclick(); };
@@ -2643,16 +2728,51 @@ renderViewsNav();
       var res = await app.handleRedirectPromise();
       Auth.account = (res && res.account) || app.getAllAccounts()[0] || null;
       if (Auth.account) { setMode(); await autoPick(); return; }
-    } catch (e) { tokenProblem('Microsoft sign-in didn\'t finish: ' + (e.errorMessage || e.message) + ' You can connect with a Power BI token meanwhile.'); return; }
+    } catch (e) { tokenProblem('Microsoft sign-in didn\'t finish: ' + (e.errorMessage || e.message)); return; }
     setMode();
+    return;
   }
-  // Not signed in with Microsoft: reconnect with a remembered Power BI token, if there is one
-
   var s; try { s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { }
   if (s && s.token && s.ws && s.ds && tokenState(s.token).ok) {
     connect({ token: s.token, ws: s.ws, ds: s.ds, wsName: s.wsName, dsName: s.dsName, members: s.members, group: s.group }).catch(function (e) { tokenProblem('Couldn\'t reconnect: ' + e.message); });
   }
 })().catch(function (e) { tokenProblem(e.message); });
+</script>
+
+<script>
+/* ---------- organisation branding ----------
+   The portal always shows two marks: the customer's organisation and Obzervr.
+   Organisation logo: read on connect from TenantSettings via the Data Cube
+   (Organisation_Info / Dim_Tenant [Logo_Base64]); ORG_BRAND.logoUrl or ?orgLogo=<url> override it. Name: ORG_BRAND.name, ?org=<name>,
+   else the connected organisation group / workspace. No logo -> initials tile. */
+var ORG_BRAND = { name: '', logoUrl: '' };
+function orgInfo() {
+  var p = new URLSearchParams(location.search);
+  var name = p.get('org') || ORG_BRAND.name;
+  if (!name && typeof Cube !== 'undefined' && Cube.live) name = Cube.group || String(Cube.wsName || '').replace(/^\*\s*/, '').replace(/\s*\(\d+ sites\)$/, '');
+  var cubeLogo = (typeof Cube !== 'undefined' && Cube.live && Cube.members && Cube.members.length) ? (Cube.members[Cube.primary || 0].logo || Cube.members.map(function (m) { return m.logo; }).filter(Boolean)[0] || '') : '';
+  return { name: name || 'Your organisation', logo: p.get('orgLogo') || ORG_BRAND.logoUrl || cubeLogo, known: !!name };
+}
+function orgInitials(n) {
+  var w = String(n).replace(/[^\p{L}\p{N} ]/gu, ' ').trim().split(/\s+/).filter(Boolean);
+  return ((w[0] || '?').charAt(0) + (w[1] ? w[1].charAt(0) : (w[0] || '').charAt(1) || '')).toUpperCase();
+}
+function renderOrgBrand() {
+  var o = orgInfo();
+  ['orgMark', 'orgMarkTop'].forEach(function (id) {
+    var el = document.getElementById(id); if (!el) return;
+    el.textContent = '';
+    var ini = document.createElement('span'); ini.className = 'ini'; ini.textContent = o.known ? orgInitials(o.name) : '\u2022';
+    if (o.logo) {
+      var img = new Image(); img.alt = ''; img.src = o.logo;
+      img.onerror = function () { el.textContent = ''; el.appendChild(ini); };
+      el.appendChild(img);
+    } else el.appendChild(ini);
+  });
+  var nm = document.getElementById('orgName'); if (nm) { nm.textContent = o.name; nm.title = o.name; }
+  var tb = document.querySelector('.topbrand'); if (tb) tb.setAttribute('aria-label', o.name + ' and Obzervr');
+}
+document.addEventListener('DOMContentLoaded', renderOrgBrand);
 </script>
 </body>
 </html>
